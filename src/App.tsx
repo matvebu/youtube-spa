@@ -1,11 +1,12 @@
 import './App.css';
-import { ThemeProvider } from './app/providers/themeProvider';
-import { Button } from './components/ui/button';
+import { ThemeProvider } from './app/providers/theme/themeProvider';
+
+import RegisterForm from './features/auth/ui/RegisterForm';
 
 function App() {
   return (
-    <ThemeProvider defaultTheme={'light'}>
-      <Button>Create</Button>
+    <ThemeProvider>
+      <RegisterForm />
     </ThemeProvider>
   );
 }
