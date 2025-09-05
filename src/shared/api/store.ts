@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { rtkApi } from '../shared/api/api';
+import { rtkApi } from './api';
 
 export const store = configureStore({
   reducer: {
