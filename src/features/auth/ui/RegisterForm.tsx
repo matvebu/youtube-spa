@@ -9,6 +9,13 @@ import { Form } from '../../../components/ui/form';
 const RegisterForm = () => {
   const form = useForm<AuthSchemaType>({
     resolver: zodResolver(AuthSchema),
+    defaultValues: {
+      username: '',
+      email: '',
+      password: '',
+      gender: 'female',
+      age: 13,
+    },
   });
 
   const onSubmit = async (data: AuthSchemaType) => {

@@ -1,13 +1,17 @@
 import './App.css';
 import { ThemeProvider } from './app/providers/theme/themeProvider';
-
-import RegisterForm from './features/auth/ui/RegisterForm';
+import { Provider } from 'react-redux';
+import { RouterProvider } from 'react-router-dom';
+import { store } from './shared/api/store';
+import { router } from './app/providers/router/router';
 
 function App() {
   return (
-    <ThemeProvider>
-      <RegisterForm />
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider defaultTheme='dark'>
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </Provider>
   );
 }
 
