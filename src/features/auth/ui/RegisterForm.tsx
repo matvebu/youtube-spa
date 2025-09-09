@@ -16,8 +16,10 @@ import { Input } from '../../../components/ui/input';
 import { Link } from 'react-router-dom';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
+import { useRegisterMutation } from '../api/authApi';
 
 const RegisterForm = () => {
+  const [register, { isLoading: isFetching }] = useRegisterMutation();
   const form = useForm<AuthSchemaType>({
     resolver: zodResolver(AuthSchema),
     defaultValues: {
@@ -29,12 +31,14 @@ const RegisterForm = () => {
     },
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(isFetching);
   const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data: AuthSchemaType) => {
-    console.log(data);
     setIsLoading(true);
+    const res = await register(data).unwrap();
+    console.log(res);
+    setIsLoading(false);
   };
 
   return (

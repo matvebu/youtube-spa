@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { rtkApi } from './api';
+import { authApi } from '../../../features/auth/api/authApi';
 
 export const store = configureStore({
   reducer: {
-    [rtkApi.reducerPath]: rtkApi.reducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
-  middleware: (gDM) => gDM().concat(rtkApi.middleware),
+  middleware: (gDM) => gDM().concat(authApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
