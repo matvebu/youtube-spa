@@ -1,6 +1,12 @@
-import type { BaseQueryFn } from '@reduxjs/toolkit/query';
+import type { BaseQueryFn, QueryReturnValue } from '@reduxjs/toolkit/query';
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosError } from 'axios';
+
+export type AxiosBaseQueryError = {
+  data: { success: boolean; message: string } | { message: string };
+};
+
+type ServerErrorData = { success: boolean; message: string } | { message: string };
 
 export const axiosBaseQuery =
   (
@@ -14,9 +20,20 @@ export const axiosBaseQuery =
       headers?: AxiosRequestConfig['headers'];
     },
     unknown,
-    unknown
+    AxiosBaseQueryError,
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    {},
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    {}
   > =>
-  async ({ url, method, data, params, headers }) => {
+  async ({
+    url,
+    method,
+    data,
+    params,
+    headers,
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  }): Promise<QueryReturnValue<unknown, AxiosBaseQueryError, {}>> => {
     try {
       const result = await axios({
         url: baseUrl + url,
@@ -26,12 +43,22 @@ export const axiosBaseQuery =
         headers,
       });
       return { data: result.data };
-    } catch (axiosError) {
-      const err = axiosError as AxiosError;
+    } catch (e) {
+      const err = e as AxiosError<ServerErrorData>;
+      const raw = err.response?.data;
+
+      // ← делаем message всегда string
+      const message =
+        typeof raw === 'string'
+          ? raw
+          : (raw as { message?: unknown })?.message &&
+              typeof (raw as ServerErrorData).message === 'string'
+            ? (raw as ServerErrorData).message
+            : (err.message ?? 'Unknown error');
+
       return {
         error: {
-          status: err.response?.status,
-          data: err.response?.data || err.message,
+          data: { success: false, message }, // ВАЖНО: success = false
         },
       };
     }

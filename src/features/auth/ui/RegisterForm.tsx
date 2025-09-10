@@ -13,12 +13,13 @@ import {
 import { Icons } from '../../../shared/ui/icons';
 import { useState } from 'react';
 import { Input } from '../../../components/ui/input';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
 import { useRegisterMutation } from '../api/authApi';
 
 const RegisterForm = () => {
+  const navigate = useNavigate();
   const [register, { isLoading: isFetching }] = useRegisterMutation();
   const form = useForm<AuthSchemaType>({
     resolver: zodResolver(AuthSchema),
@@ -26,19 +27,17 @@ const RegisterForm = () => {
       username: '',
       email: '',
       password: '',
-      gender: 'female',
+      gender: 'male',
       age: 18,
     },
   });
 
-  const [isLoading, setIsLoading] = useState(isFetching);
   const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data: AuthSchemaType) => {
-    setIsLoading(true);
     const res = await register(data).unwrap();
     console.log(res);
-    setIsLoading(false);
+    navigate('/login');
   };
 
   return (
@@ -158,8 +157,8 @@ const RegisterForm = () => {
               </FormItem>
             )}
           />
-          <Button type='submit' disabled={isLoading}>
-            {isLoading && <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />}
+          <Button type='submit' disabled={isFetching}>
+            {isFetching && <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />}
             Sign Up
           </Button>
         </form>
@@ -167,6 +166,7 @@ const RegisterForm = () => {
       <Link to='/login' className='text-white/50 hover:text-white underline underline-offset-4'>
         Already have an account?
       </Link>
+      {/* {isError && <p>{error}</p>} */}
     </div>
   );
 };
