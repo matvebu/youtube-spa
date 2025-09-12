@@ -2,11 +2,39 @@ import type { BaseQueryFn, QueryReturnValue } from '@reduxjs/toolkit/query';
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosError } from 'axios';
 
-export type AxiosBaseQueryError = {
-  data: { success: boolean; message: string } | { message: string };
+type ServerErrorData = { success: boolean; message: string } | { message: string };
+
+export type RtkAxiosError = {
+  status: number;
+  data: { success: boolean; message: string };
 };
 
-type ServerErrorData = { success: boolean; message: string } | { message: string };
+import { z } from 'zod';
+
+export const RtkAxiosErrorSchema = z.object({
+  status: z.number(),
+  data: z.object({
+    success: z.boolean().optional(),
+    message: z.string(),
+  }),
+});
+
+export const SerializedErrorSchema = z.object({
+  name: z.string().optional(),
+  message: z.string().optional(),
+  stack: z.string().optional(),
+  code: z.string().optional(),
+});
+
+export function getErrorMessage(err: unknown): string {
+  const axiosErr = RtkAxiosErrorSchema.safeParse(err);
+  if (axiosErr.success) return axiosErr.data.data.message;
+
+  const ser = SerializedErrorSchema.safeParse(err);
+  if (ser.success && ser.data.message) return ser.data.message;
+
+  return 'Something went wrong';
+}
 
 export const axiosBaseQuery =
   (
@@ -20,11 +48,7 @@ export const axiosBaseQuery =
       headers?: AxiosRequestConfig['headers'];
     },
     unknown,
-    AxiosBaseQueryError,
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    {},
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    {}
+    RtkAxiosError
   > =>
   async ({
     url,
@@ -33,32 +57,21 @@ export const axiosBaseQuery =
     params,
     headers,
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  }): Promise<QueryReturnValue<unknown, AxiosBaseQueryError, {}>> => {
+  }): Promise<QueryReturnValue<unknown, RtkAxiosError, {}>> => {
     try {
-      const result = await axios({
-        url: baseUrl + url,
-        method,
-        data,
-        params,
-        headers,
-      });
-      return { data: result.data };
+      const res = await axios({ url: baseUrl + url, method, data, params, headers });
+      return { data: res.data };
     } catch (e) {
       const err = e as AxiosError<ServerErrorData>;
       const raw = err.response?.data;
 
-      // ← делаем message всегда string
       const message =
-        typeof raw === 'string'
-          ? raw
-          : (raw as { message?: unknown })?.message &&
-              typeof (raw as ServerErrorData).message === 'string'
-            ? (raw as ServerErrorData).message
-            : (err.message ?? 'Unknown error');
+        typeof raw === 'string' ? raw : (raw?.message ?? err.message ?? 'Unknown error');
 
       return {
         error: {
-          data: { success: false, message }, // ВАЖНО: success = false
+          status: err.response?.status ?? 0,
+          data: { success: false, message },
         },
       };
     }

@@ -23,3 +23,5 @@ export const AuthSchema = z.object({
 });
 
 export type AuthSchemaType = z.infer<typeof AuthSchema>;
+export const LoginSchema = AuthSchema.pick({ email: true, password: true });
+export type LoginSchemaType = z.infer<typeof LoginSchema>;

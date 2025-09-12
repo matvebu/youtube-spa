@@ -1,7 +1,8 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import RegisterForm from '../../../features/auth/ui/RegisterForm';
 import PrivateRoute from '../../../shared/api/routing/PrivateRoute';
-import AuthLayout from '../../../features/auth/ui/AuthLAyout';
+import AuthLayout from '../../../features/auth/ui/AuthLayout';
+import { RegisterForm } from '../../../features/auth/ui/RegisterForm';
+import { LoginForm } from '../../../features/auth/ui/LoginForm';
 
 //TODO
 // Lazy загрузка страниц
@@ -20,7 +21,7 @@ export const router = createBrowserRouter([
     path: 'auth',
     element: <AuthLayout />,
     children: [
-      // { path: 'login', element: <LoginPage /> },
+      { path: 'signin', element: <LoginForm /> },
       { path: 'signup', element: <RegisterForm /> },
     ],
   },
@@ -47,6 +48,6 @@ export const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <Navigate to='/auth/login' replace />,
+    element: <Navigate to='/auth/signin' replace />,
   },
 ]);

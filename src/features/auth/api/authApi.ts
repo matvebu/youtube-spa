@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from '../../../shared/api/axiosBaseQuery';
-import type { AuthSchemaType } from '../schema/schema';
+import type { AuthSchemaType, LoginSchemaType } from '../schema/schema';
 
 export const authApi = createApi({
   reducerPath: 'auth',
@@ -9,9 +9,16 @@ export const authApi = createApi({
   }),
   endpoints(build) {
     return {
-      register: build.mutation({
+      register: build.mutation<AuthSchemaType, AuthSchemaType>({
         query: (body: AuthSchemaType) => ({
           url: '/api/users/register',
+          method: 'post',
+          data: body,
+        }),
+      }),
+      login: build.mutation<{ token: string }, LoginSchemaType>({
+        query: (body: LoginSchemaType) => ({
+          url: '/api/auth/login',
           method: 'post',
           data: body,
         }),
@@ -20,4 +27,4 @@ export const authApi = createApi({
   },
 });
 
-export const { useRegisterMutation } = authApi;
+export const { useRegisterMutation, useLoginMutation } = authApi;

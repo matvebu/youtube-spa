@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AuthSchema, type AuthSchemaType } from '../schema/schema';
 import { Button } from '../../../components/ui/button';
 import {
   Form,
@@ -15,33 +14,31 @@ import { useState } from 'react';
 import { Input } from '../../../components/ui/input';
 import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
-import { useRegisterMutation } from '../api/authApi';
+
 import { getErrorMessage } from '../../../shared/api/axiosBaseQuery';
 import { toast } from 'sonner';
+import { useLoginMutation } from '../api/authApi';
+import { LoginSchema, type LoginSchemaType } from '../schema/schema';
 
-export const RegisterForm = () => {
+export const LoginForm = () => {
   const navigate = useNavigate();
-  const [register, { isLoading: isFetching }] = useRegisterMutation();
+  const [login, { isLoading: isFetching }] = useLoginMutation();
 
-  const form = useForm<AuthSchemaType>({
-    resolver: zodResolver(AuthSchema),
+  const form = useForm<LoginSchemaType>({
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
-      username: '',
       email: '',
       password: '',
-      gender: 'male',
-      age: 18,
     },
   });
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = async (data: AuthSchemaType) => {
+  const onSubmit = async (data: LoginSchemaType) => {
     try {
-      const res = await register(data).unwrap();
+      const res = await login(data).unwrap();
       console.log(res);
-      navigate('/signin');
+      navigate('*');
     } catch (e) {
       toast.error(getErrorMessage(e));
     }
@@ -51,19 +48,6 @@ export const RegisterForm = () => {
     <div className='flex items-center flex-col justify-center lg:p-8 gap-6 h-screen'>
       <Form {...form}>
         <form className='grid gap-4 w-full max-w-sm min-w-0' onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
-            name='username'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className='sr-only'>'Name</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder='username' className='w-full' />
-                </FormControl>
-                <FormMessage className='text-xs leading-tight' />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name='email'
@@ -114,64 +98,17 @@ export const RegisterForm = () => {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name='age'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className='sr-only'>Age</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    inputMode='numeric'
-                    min={18}
-                    step={1}
-                    className='w-full'
-                    value={field.value ?? ''}
-                    onChange={(e) => {
-                      const v = e.currentTarget.value;
-                      field.onChange(v === '' ? undefined : e.currentTarget.valueAsNumber);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage className='text-xs leading-tight' />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='gender'
-            render={({ field }) => (
-              <FormItem className='space-y-3'>
-                <FormLabel className='sr-only'>Gender</FormLabel>
-                <FormControl>
-                  <RadioGroup onValueChange={field.onChange} defaultValue='male' className='flex'>
-                    <FormItem className='flex items-center gap-3'>
-                      <FormControl>
-                        <RadioGroupItem value='male' />
-                      </FormControl>
-                      <FormLabel className='font-normal'>Male</FormLabel>
-                    </FormItem>
-                    <FormItem className='flex items-center gap-3'>
-                      <FormControl>
-                        <RadioGroupItem value='female' />
-                      </FormControl>
-                      <FormLabel className='font-normal'>female</FormLabel>
-                    </FormItem>
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <Button type='submit' disabled={isFetching}>
             {isFetching && <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />}
-            Sign Up
+            Sign In
           </Button>
         </form>
       </Form>
-      <Link to='/signin' className='text-white/50 hover:text-white underline underline-offset-4'>
-        Already have an account?
+      <Link
+        to='/auth/signup'
+        className='text-white/50 hover:text-white underline underline-offset-4'
+      >
+        Don't have an account?Register now!
       </Link>
     </div>
   );
