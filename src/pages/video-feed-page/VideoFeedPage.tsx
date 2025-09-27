@@ -2,7 +2,7 @@ import { VideoFeed } from '../../features/search-input/ui/VideoFeed';
 
 const VideoFeedPage = () => {
   return (
-    <div className='mx-auto flex w-full flex-col items-center h-full justify-center'>
+    <div className='flex w-full h-full items-center justify-center'>
       <VideoFeed />
     </div>
   );

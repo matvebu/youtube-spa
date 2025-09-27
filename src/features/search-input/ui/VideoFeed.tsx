@@ -92,11 +92,14 @@ export function VideoFeed() {
   const cardClickHandler = (videoId: string) => {
     navigate(`/main/video/${videoId}`);
   };
+  console.log(data?.videos?.ids.length);
 
   return (
     <div
       className={`flex flex-col w-full items-center gap-4 px-5 ${
-        data?.videos?.ids.length !== 0 ? 'mt-4 justify-center min-h-screen' : ''
+        data?.videos?.ids.length
+          ? 'justify-start py-6 h-full overflow-y-auto'
+          : 'justify-center h-full'
       }`}
     >
       <form
@@ -157,7 +160,7 @@ export function VideoFeed() {
           </RadioGroup>
         </div>
       )}
-      <div className='grid grid-cols-1 sm:grid-cols-2 smx1:grid-cols-3 lgx1:grid-cols-4 gap-6'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 smx1:grid-cols-3 lgx1:grid-cols-4 gap-6 w-full max-w-7xl'>
         {data && viewsData
           ? Object.values(data.videos.entities).map((el) => {
               return (

@@ -23,7 +23,7 @@ const Header = () => {
     navigate('auth/signin');
   };
   return (
-    <header className='flex h-(--header-height) shrink-0 items-center border-b justify-between py-2'>
+    <header className='flex h-(--header-height) shrink-0 items-center border-b justify-between py-2 px-8'>
       <div className='flex gap-2 items-center'>
         <img src={Logo} alt='logo' />
         <Tabs defaultValue={value} onValueChange={handleTabs}>
