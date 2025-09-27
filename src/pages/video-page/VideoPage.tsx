@@ -4,7 +4,7 @@ export function VideoPage() {
   const { videoId } = useParams<{ videoId: string }>();
 
   return (
-    <div>
+    <div className='flex justify-center items-center'>
       <iframe
         width='560'
         height='315'
