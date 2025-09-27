@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AuthSchema, type AuthSchemaType } from '../schema/schema';
-import { Button } from '../../../components/ui/button';
+import { Button } from '../../../../components/ui/button';
 import {
   Form,
   FormControl,
@@ -9,16 +8,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../../../components/ui/form';
-import { Icons } from '../../../shared/ui/icons';
+} from '../../../../components/ui/form';
+import { Icons } from '../../../../shared/ui/icons';
 import { useState } from 'react';
-import { Input } from '../../../components/ui/input';
+import { Input } from '../../../../components/ui/input';
 import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
-import { useRegisterMutation } from '../api/authApi';
-import { getErrorMessage } from '../../../shared/api/axiosBaseQuery';
+import { RadioGroup, RadioGroupItem } from '../../../../components/ui/radio-group';
+import { useRegisterMutation } from '../../api/authApi';
+import { getErrorMessage } from '../../api/axiosAuthBaseQuery';
 import { toast } from 'sonner';
+import { AuthSchema, type AuthSchemaType } from '../../schema/schema';
 
 export const RegisterForm = () => {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export const RegisterForm = () => {
   };
 
   return (
-    <div className='flex items-center flex-col justify-center lg:p-8 gap-6 h-screen'>
+    <div className='flex items-center flex-col justify-center lg:p-8 gap-6'>
       <Form {...form}>
         <form className='grid gap-4 w-full max-w-sm min-w-0' onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
@@ -88,7 +88,6 @@ export const RegisterForm = () => {
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       className='hide-password-toggle pr-10'
-                      placeholder='******'
                       autoComplete='new-password'
                       {...field}
                     />
@@ -170,7 +169,10 @@ export const RegisterForm = () => {
           </Button>
         </form>
       </Form>
-      <Link to='/signin' className='text-white/50 hover:text-white underline underline-offset-4'>
+      <Link
+        to='/signin'
+        className='dark:text-white/50 text-foreground hover:text-muted-foreground dark:hover:text-white underline underline-offset-4'
+      >
         Already have an account?
       </Link>
     </div>

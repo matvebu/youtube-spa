@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '../../../components/ui/button';
+import { Button } from '../../../../components/ui/button';
 import {
   Form,
   FormControl,
@@ -8,17 +8,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../../../components/ui/form';
-import { Icons } from '../../../shared/ui/icons';
+} from '../../../../components/ui/form';
+import { Icons } from '../../../../shared/ui/icons';
 import { useState } from 'react';
-import { Input } from '../../../components/ui/input';
+import { Input } from '../../../../components/ui/input';
 import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 
-import { getErrorMessage } from '../../../shared/api/axiosBaseQuery';
+import { getErrorMessage } from '../../api/axiosAuthBaseQuery';
 import { toast } from 'sonner';
-import { useLoginMutation } from '../api/authApi';
-import { LoginSchema, type LoginSchemaType } from '../schema/schema';
+import { useLoginMutation } from '../../api/authApi';
+import { type LoginSchemaType, LoginSchema } from '../../schema/schema';
 
 export const LoginForm = () => {
   const navigate = useNavigate();
@@ -38,14 +38,15 @@ export const LoginForm = () => {
     try {
       const res = await login(data).unwrap();
       console.log(res);
-      navigate('*');
+      localStorage.setItem('TOKEN', res.token);
+      navigate('/main/search');
     } catch (e) {
       toast.error(getErrorMessage(e));
     }
   };
 
   return (
-    <div className='flex items-center flex-col justify-center lg:p-8 gap-6 h-screen'>
+    <div className='flex items-center flex-col justify-center lg:p-8 gap-6'>
       <Form {...form}>
         <form className='grid gap-4 w-full max-w-sm min-w-0' onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
@@ -72,7 +73,6 @@ export const LoginForm = () => {
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       className='hide-password-toggle pr-10'
-                      placeholder='******'
                       autoComplete='new-password'
                       {...field}
                     />
@@ -106,7 +106,7 @@ export const LoginForm = () => {
       </Form>
       <Link
         to='/auth/signup'
-        className='text-white/50 hover:text-white underline underline-offset-4'
+        className='dark:text-white/50 text-foreground hover:text-muted-foreground dark:hover:text-white underline underline-offset-4'
       >
         Don't have an account?Register now!
       </Link>

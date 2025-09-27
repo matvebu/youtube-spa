@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { authApi } from '../../../features/auth/api/authApi';
+import { videoApi } from '../../../features/search-input/api/videoApi';
 
 export const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
+    [videoApi.reducerPath]: videoApi.reducer,
   },
-  middleware: (gDM) => gDM().concat(authApi.middleware),
+  middleware: (gDM) => gDM().concat(authApi.middleware, videoApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

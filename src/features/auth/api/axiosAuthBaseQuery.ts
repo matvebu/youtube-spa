@@ -1,6 +1,7 @@
 import type { BaseQueryFn, QueryReturnValue } from '@reduxjs/toolkit/query';
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosError } from 'axios';
+import { z } from 'zod';
 
 type ServerErrorData = { success: boolean; message: string } | { message: string };
 
@@ -8,8 +9,6 @@ export type RtkAxiosError = {
   status: number;
   data: { success: boolean; message: string };
 };
-
-import { z } from 'zod';
 
 export const RtkAxiosErrorSchema = z.object({
   status: z.number(),

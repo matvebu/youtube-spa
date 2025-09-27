@@ -1,8 +1,12 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import PrivateRoute from '../../../shared/api/routing/PrivateRoute';
-import AuthLayout from '../../../features/auth/ui/AuthLayout';
-import { RegisterForm } from '../../../features/auth/ui/RegisterForm';
-import { LoginForm } from '../../../features/auth/ui/LoginForm';
+import AuthLayout from '../../../shared/ui/AuthLayout';
+import MainLayout from '../../../shared/ui/MainLayout';
+import { LoginForm } from '../../../features/auth/login/ui/LoginForm';
+import { RegisterForm } from '../../../features/auth/register/ui/RegisterForm';
+import { FavoritesPage } from '../../../pages/favorites-page/FavoritesPage';
+import VideoFeedPage from '../../../pages/video-feed-page/VideoFeedPage';
+import { VideoPage } from '../../../pages/video-page/VideoPage';
 
 //TODO
 // Lazy загрузка страниц
@@ -29,20 +33,16 @@ export const router = createBrowserRouter([
     element: <PrivateRoute />,
     children: [
       {
-        path: 'users',
-        //element: <MainLayout />,
+        path: 'main',
+        element: <MainLayout />,
         children: [
-          { index: true, element: null },
-          { path: ':userId/profile', element: /* UserProfilePage */ null },
-          { path: ':userId/skills', element: /* UserSkillsPage */ null },
-          { path: ':userId/languages', element: /* UserLanguagesPage */ null },
-          { path: ':userId/cvs', element: /* UserCVsPage */ null },
+          {
+            path: 'search',
+            element: <VideoFeedPage />,
+          },
+          { path: 'favorites', element: <FavoritesPage /> },
+          { path: 'video/:videoId', element: <VideoPage /> },
         ],
-      },
-      {
-        path: 'settings',
-        // element: <MainLayout />,
-        // children: [{ index: true, element: <SettingsPage /> }],
       },
     ],
   },

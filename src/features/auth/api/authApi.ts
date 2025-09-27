@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { axiosBaseQuery } from '../../../shared/api/axiosBaseQuery';
+import { axiosBaseQuery } from './axiosAuthBaseQuery';
 import type { AuthSchemaType, LoginSchemaType } from '../schema/schema';
 
 export const authApi = createApi({
