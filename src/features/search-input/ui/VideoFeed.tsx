@@ -92,7 +92,6 @@ export function VideoFeed() {
   const cardClickHandler = (videoId: string) => {
     navigate(`/main/video/${videoId}`);
   };
-  console.log(data?.videos?.ids.length);
 
   return (
     <div
