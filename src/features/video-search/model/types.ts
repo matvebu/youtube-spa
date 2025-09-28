@@ -1,16 +1,3 @@
-export interface SearchVideoResponse {
-  kind: 'youtube#searchListResponse';
-  etag: string;
-  nextPageToken: string;
-  prevPageToken: string;
-  regionCode: string;
-  pageInfo: {
-    totalResults: number;
-    resultsPerPage: number;
-  };
-  items: Video[];
-}
-
 export interface Video {
   kind: 'youtube#searchResult';
   etag: string;
@@ -55,7 +42,27 @@ export interface VideoMetricsType {
   };
 }
 
+export interface SearchVideoResponse {
+  kind: 'youtube#searchListResponse';
+  etag: string;
+  nextPageToken: string;
+  prevPageToken: string;
+  regionCode: string;
+  pageInfo: {
+    totalResults: number;
+    resultsPerPage: number;
+  };
+  items: Video[];
+}
+
 export interface ViewsCountResponse {
   kind: 'youtube#videoListResponse';
   items: VideoMetricsType[];
 }
+
+export type SearchServerError = {
+  error: {
+    message: string;
+    [key: string]: unknown;
+  };
+};

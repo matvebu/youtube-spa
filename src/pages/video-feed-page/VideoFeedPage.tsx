@@ -1,4 +1,4 @@
-import { VideoFeed } from '../../features/search-input/ui/VideoFeed';
+import { VideoFeed } from '../../features/video-search/ui/VideoFeed';
 
 const VideoFeedPage = () => {
   return (

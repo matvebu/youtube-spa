@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
-import {
-  useLazyGetViewsCountQuery,
-  useLazySearchQuery,
-  type SearchServerError,
-} from '../api/videoApi';
+import { useLazyGetViewsCountQuery, useLazySearchQuery } from '../api/videoApi';
+import type { SearchServerError } from '../model/types';
 import {
   Card,
   CardTitle,
@@ -21,7 +18,7 @@ import { viewsFormatHelper } from '../../../shared/utils/viewsFormatHelper';
 import { List } from 'lucide-react';
 import { LayoutGrid } from 'lucide-react';
 import { Search } from 'lucide-react';
-import { SearchInputSchema } from '../schema/schema';
+import { SearchInputSchema } from '../model/schema';
 import { Star } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
 

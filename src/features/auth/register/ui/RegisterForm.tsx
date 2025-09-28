@@ -16,9 +16,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '../../../../components/ui/radio-group';
 import { useRegisterMutation } from '../../api/authApi';
-import { getErrorMessage } from '../../api/axiosAuthBaseQuery';
+import { getErrorMessage } from '../../api/authBaseQuery';
 import { toast } from 'sonner';
-import { AuthSchema, type AuthSchemaType } from '../../schema/schema';
+import { AuthSchema, type AuthSchemaType } from '../../model/schema';
 
 const RegisterForm = () => {
   const navigate = useNavigate();

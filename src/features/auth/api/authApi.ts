@@ -1,10 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { axiosBaseQuery } from './axiosAuthBaseQuery';
-import type { AuthSchemaType, LoginSchemaType } from '../schema/schema';
+import { createAuthBaseQuery } from './authBaseQuery';
+import type { AuthSchemaType, LoginSchemaType } from '../model/schema';
 
 export const authApi = createApi({
   reducerPath: 'auth',
-  baseQuery: axiosBaseQuery({
+  baseQuery: createAuthBaseQuery({
     baseUrl: 'https://todo-redev.herokuapp.com',
   }),
   endpoints(build) {

@@ -15,10 +15,10 @@ import { Input } from '../../../../components/ui/input';
 import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 
-import { getErrorMessage } from '../../api/axiosAuthBaseQuery';
+import { getErrorMessage } from '../../api/authBaseQuery';
 import { toast } from 'sonner';
 import { useLoginMutation } from '../../api/authApi';
-import { type LoginSchemaType, LoginSchema } from '../../schema/schema';
+import { type LoginSchemaType, LoginSchema } from '../../model/schema';
 
 const LoginForm = () => {
   const navigate = useNavigate();
