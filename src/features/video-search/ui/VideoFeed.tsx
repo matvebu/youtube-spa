@@ -170,15 +170,11 @@ export function VideoFeed() {
                       <AspectRatio ratio={16 / 9}>
                         <picture>
                           <source
-                            media='(min-width: 1024px)'
-                            srcSet={el.snippet.thumbnails.high.url}
-                          />
-                          <source
-                            media='(min-width: 640px)'
+                            media='(min-width: 650px)'
                             srcSet={el.snippet.thumbnails.medium.url}
                           />
                           <img
-                            src={el.snippet.thumbnails.default.url}
+                            src={el.snippet.thumbnails.high.url}
                             alt={el.snippet.title}
                             className='rounded-t-[14px] object-cover w-full h-full'
                             onError={(e) => {
