@@ -63,7 +63,7 @@ export function VideoFeed() {
       event.preventDefault();
       const result = SearchInputSchema.safeParse({ search: query });
       if (!result.success) {
-        console.error(result.error.format()); // изменить
+        toast.error('Invalid search query');
         return;
       }
 

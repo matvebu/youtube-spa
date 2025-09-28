@@ -1,20 +1,13 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { lazy } from 'react';
 import PrivateRoute from '../../../shared/api/routing/PrivateRoute';
-import AuthLayout from '../../../shared/ui/AuthLayout';
 import MainLayout from '../../../shared/ui/MainLayout';
-import { LoginForm } from '../../../features/auth/login/ui/LoginForm';
-import { RegisterForm } from '../../../features/auth/register/ui/RegisterForm';
-import { FavoritesPage } from '../../../pages/favorites-page/FavoritesPage';
-import VideoFeedPage from '../../../pages/video-feed-page/VideoFeedPage';
-import { VideoPage } from '../../../pages/video-page/VideoPage';
 
-//TODO
-// Lazy загрузка страниц
-// const LoginPage = lazy(() => import(''));
-// const RegisterPage = lazy(() => import(''));
-
-// const UsersPage = lazy(() => import(''));
-// const UserProfilePage = lazy(() => import('')); ...
+const LoginPage = lazy(() => import('../../../pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('../../../pages/auth/RegisterPage'));
+const FavoritesPage = lazy(() => import('../../../pages/favorites-page/FavoritesPage'));
+const VideoFeedPage = lazy(() => import('../../../pages/video-feed-page/VideoFeedPage'));
+const VideoPage = lazy(() => import('../../../pages/video-page/VideoPage'));
 
 export const router = createBrowserRouter([
   {
@@ -23,10 +16,15 @@ export const router = createBrowserRouter([
   },
   {
     path: 'auth',
-    element: <AuthLayout />,
     children: [
-      { path: 'signin', element: <LoginForm /> },
-      { path: 'signup', element: <RegisterForm /> },
+      {
+        path: 'signin',
+        element: <LoginPage />,
+      },
+      {
+        path: 'signup',
+        element: <RegisterPage />,
+      },
     ],
   },
   {
@@ -40,8 +38,14 @@ export const router = createBrowserRouter([
             path: 'search',
             element: <VideoFeedPage />,
           },
-          { path: 'favorites', element: <FavoritesPage /> },
-          { path: 'video/:videoId', element: <VideoPage /> },
+          {
+            path: 'favorites',
+            element: <FavoritesPage />,
+          },
+          {
+            path: 'video/:videoId',
+            element: <VideoPage />,
+          },
         ],
       },
     ],

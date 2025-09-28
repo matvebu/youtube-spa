@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 import { useLoginMutation } from '../../api/authApi';
 import { type LoginSchemaType, LoginSchema } from '../../schema/schema';
 
-export const LoginForm = () => {
+const LoginForm = () => {
   const navigate = useNavigate();
   const [login, { isLoading: isFetching }] = useLoginMutation();
 
@@ -113,3 +113,5 @@ export const LoginForm = () => {
     </div>
   );
 };
+
+export default LoginForm;

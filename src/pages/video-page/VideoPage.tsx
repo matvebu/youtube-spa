@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 
-export function VideoPage() {
+function VideoPage() {
   const { videoId } = useParams<{ videoId: string }>();
 
   return (
@@ -19,3 +19,5 @@ export function VideoPage() {
     </div>
   );
 }
+
+export default VideoPage;

@@ -20,7 +20,7 @@ import { getErrorMessage } from '../../api/axiosAuthBaseQuery';
 import { toast } from 'sonner';
 import { AuthSchema, type AuthSchemaType } from '../../schema/schema';
 
-export const RegisterForm = () => {
+const RegisterForm = () => {
   const navigate = useNavigate();
   const [register, { isLoading: isFetching }] = useRegisterMutation();
 
@@ -178,3 +178,5 @@ export const RegisterForm = () => {
     </div>
   );
 };
+
+export default RegisterForm;
