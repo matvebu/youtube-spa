@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { useLazyGetViewsCountQuery, useLazySearchQuery } from '../api/videoApi';
@@ -15,12 +15,9 @@ import { Skeleton } from '../../../components/ui/skeleton';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { viewsFormatHelper } from '../../../shared/utils/viewsFormatHelper';
-import { List } from 'lucide-react';
-import { LayoutGrid } from 'lucide-react';
-import { Search } from 'lucide-react';
+import { List, LayoutGrid, Search, Star } from 'lucide-react';
 import { SearchInputSchema } from '../model/schema';
-import { Star } from 'lucide-react';
-import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
+import { ToggleGroup, ToggleGroupItem } from '../../../components/ui/toggle-group';
 
 export function VideoFeed() {
   const navigate = useNavigate();
@@ -28,15 +25,21 @@ export function VideoFeed() {
   const initialQuery = searchParams.get('q') || localStorage.getItem('CURRENT_SEARCH') || '';
   const [query, setQuery] = useState(initialQuery);
   const [searchTerm, setSearchTerm] = useState(initialQuery);
+  const [orientation, setOrientation] = useState('list');
+
+  useEffect(() => {
+    localStorage.setItem('CURRENT_SEARCH', searchTerm);
+    setSearchParams(searchTerm ? { q: searchTerm } : {});
+  }, [searchTerm, setSearchParams]);
 
   const [triggerSearch, { data, isLoading }] = useLazySearchQuery();
-  const [triggerViewCount, { data: viewsData, isLoading: isViewsLoading }] =
+  const [triggerViewsCount, { data: viewsData, isLoading: isViewsLoading }] =
     useLazyGetViewsCountQuery();
 
   useEffect(() => {
-    const handleViewCount = async (ids: string[]) => {
+    const handleViewsCount = async (ids: string[]) => {
       try {
-        await triggerViewCount(ids).unwrap();
+        await triggerViewsCount(ids).unwrap();
       } catch (error) {
         if (error) {
           const message = (error as SearchServerError).error.message;
@@ -46,28 +49,19 @@ export function VideoFeed() {
     };
     if (data?.videos) {
       const ids = Object.values(data.videos.ids);
-      handleViewCount(ids);
+      handleViewsCount(ids);
     }
-  }, [data, triggerViewCount]);
+  }, [data, triggerViewsCount]);
 
-  useEffect(() => {
-    localStorage.setItem('CURRENT_SEARCH', searchTerm);
-    setSearchParams(searchTerm ? { q: searchTerm } : {});
-  }, [searchTerm, setSearchParams]);
-
-  const handleSearch = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      const result = SearchInputSchema.safeParse({ search: query });
-      if (!result.success) {
-        toast.error('Invalid search query');
-        return;
-      }
-
-      setSearchTerm(result.data.search);
-    },
-    [query]
-  );
+  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const result = SearchInputSchema.safeParse({ search: query });
+    if (!result.success) {
+      toast.error('Invalid search query');
+      return;
+    }
+    setSearchTerm(result.data.search);
+  };
 
   useEffect(() => {
     const handleSearchTrigger = async (searchTerm: string) => {
@@ -112,14 +106,7 @@ export function VideoFeed() {
         <Button
           type='button'
           variant='ghost'
-          className='
-    rounded-none border-x-0 border-y border-border
-    bg-input/30
-    hover:bg-input/30 focus:bg-input/30 active:bg-input/30
-    dark:bg-input/30 dark:hover:bg-input/30 dark:focus:bg-input/30 dark:active:bg-input/30
-    focus-visible:outline-none focus-visible:ring-0
-    shadow-none transition-none
-  '
+          className='rounded-none border-x-0 border-y border-border bg-input/30 hover:bg-input/30 focus:bg-input/30 active:bg-input/30 dark:bg-input/30 dark:hover:bg-input/30 dark:focus:bg-input/30 dark:active:bg-input/30 focus-visible:outline-none focus-visible:ring-0 shadow-none transition-none'
         >
           <Star />
         </Button>
@@ -137,36 +124,54 @@ export function VideoFeed() {
             Results for the query <span className='font-bold'>"{searchTerm}"</span>:{' '}
             <span className='text-muted-foreground'>{data?.totalResults || 0}</span>
           </p>
-          <RadioGroup defaultValue='list' className='flex gap-2'>
-            <RadioGroupItem
+          <ToggleGroup
+            type='single'
+            value={orientation}
+            className='flex gap-2'
+            onValueChange={(value) => {
+              if (value) setOrientation(value);
+            }}
+          >
+            <ToggleGroupItem
               value='list'
-              id='list'
-              className='className="
-    cursor-pointer
-    inline-flex items-center justify-center
-    w-8 h-8 rounded
-    text-muted-foreground
-    data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground'
+              className='cursor-pointer inline-flex items-center justify-center w-8 h-8 rounded text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
             >
               <List />
-            </RadioGroupItem>
-            <RadioGroupItem value='grid' id='grid' className='cursor-pointer'>
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value='grid'
+              className='cursor-pointer inline-flex items-center justify-center w-8 h-8 rounded text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+            >
               <LayoutGrid />
-            </RadioGroupItem>
-          </RadioGroup>
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       )}
-      <div className='grid grid-cols-1 sm:grid-cols-2 smx1:grid-cols-3 lgx1:grid-cols-4 gap-6 w-full max-w-7xl'>
+      <div
+        className={`grid gap-6 w-full max-w-7xl ${
+          orientation === 'list'
+            ? 'grid-cols-1 place-items-center'
+            : 'grid-cols-1 sm:grid-cols-2 smx1:grid-cols-3 lgx1:grid-cols-4'
+        }`}
+      >
         {data && viewsData
           ? Object.values(data.videos.entities).map((el) => {
               return (
                 <Card
                   key={el.id.videoId}
                   onClick={() => cardClickHandler(el.id.videoId)}
-                  className='cursor-pointer smx1:w-[280px] py-0'
+                  className={`cursor-pointer py-0 ${
+                    orientation === 'list' ? 'w-[80%] flex flex-row h-[120px]' : 'smx1:w-[280px]'
+                  }`}
                 >
-                  <div className='block relative after:content-[""] after:absolute after:inset-0 after:rounded-[14px] after:bg-transparent after:pointer-events-none after:transition-colors hover:after:bg-[rgba(62,170,102,0.2)]'>
-                    <CardContent className='px-0'>
+                  <div
+                    className={`block relative after:content-[""] after:absolute after:inset-0 after:rounded-[14px] after:bg-transparent after:pointer-events-none after:transition-colors hover:after:bg-[rgba(62,170,102,0.2)] ${
+                      orientation === 'list' ? 'flex flex-row w-full' : ''
+                    }`}
+                  >
+                    <CardContent
+                      className={orientation === 'list' ? 'px-0 w-[210px] flex-shrink-0' : 'px-0'}
+                    >
                       <AspectRatio ratio={16 / 9}>
                         <picture>
                           <source
@@ -176,7 +181,9 @@ export function VideoFeed() {
                           <img
                             src={el.snippet.thumbnails.high.url}
                             alt={el.snippet.title}
-                            className='rounded-t-[14px] object-cover w-full h-full'
+                            className={`object-cover w-full h-full ${
+                              orientation === 'list' ? 'rounded-l-[14px]' : 'rounded-t-[14px]'
+                            }`}
                             onError={(e) => {
                               e.currentTarget.src = '/assets/fallback.jpg';
                             }}
@@ -184,7 +191,11 @@ export function VideoFeed() {
                         </picture>
                       </AspectRatio>
                     </CardContent>
-                    <CardFooter className='flex-col items-start px-3 pt-3'>
+                    <CardFooter
+                      className={`items-start px-3 pt-3 ${
+                        orientation === 'list' ? 'flex-1 flex-col justify-center' : 'flex-col'
+                      }`}
+                    >
                       <CardTitle className='line-clamp-2 overflow-hidden text-ellipsis text-left mb-2'>
                         {el.snippet.title}
                       </CardTitle>
