@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { useLazyGetViewsCountQuery, useLazySearchQuery } from '../api/videoApi';
@@ -12,73 +12,90 @@ import {
 } from '../../../components/ui/card';
 import { AspectRatio } from '../../../components/ui/aspect-ratio';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { viewsFormatHelper } from '../../../shared/utils/viewsFormatHelper';
-import { List, LayoutGrid, Search, Star } from 'lucide-react';
+import { List, LayoutGrid, Search } from 'lucide-react';
 import { SearchInputSchema } from '../model/schema';
 import { ToggleGroup, ToggleGroupItem } from '../../../components/ui/toggle-group';
+import RequestModal from '../../favorites-requests/ui/RequestModal';
+import type { RequestFormType } from '../../favorites-requests/model/schema';
 
 export function VideoFeed() {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialQuery = searchParams.get('q') || localStorage.getItem('CURRENT_SEARCH') || '';
-  const [query, setQuery] = useState(initialQuery);
-  const [searchTerm, setSearchTerm] = useState(initialQuery);
-  const [orientation, setOrientation] = useState('list');
-
-  useEffect(() => {
-    localStorage.setItem('CURRENT_SEARCH', searchTerm);
-    setSearchParams(searchTerm ? { q: searchTerm } : {});
-  }, [searchTerm, setSearchParams]);
-
+  const location = useLocation();
+  const [orientation, setOrientation] = useState('grid');
+  const incomingRequestSearch = location.state?.request.search;
+  //const incomingRequest = location.state?.request.search;
   const [triggerSearch, { data, isLoading }] = useLazySearchQuery();
   const [triggerViewsCount, { data: viewsData, isLoading: isViewsLoading }] =
     useLazyGetViewsCountQuery();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleViewsCount = async (ids: string[]) => {
-      try {
+  //const [searchParams, setSearchParams] = useSearchParams();
+
+  const initialQuery = incomingRequestSearch || localStorage.getItem('CURRENT_SEARCH') || '';
+  // const [query, setQuery] = useState(initialQuery);
+
+  const [searchTerm, setSearchTerm] = useState(initialQuery);
+
+  const handleSearchTrigger = async (request: RequestFormType) => {
+    try {
+      await triggerSearch(request).unwrap();
+      if (data?.videos) {
+        const ids = Object.values(data.videos.ids);
         await triggerViewsCount(ids).unwrap();
-      } catch (error) {
-        if (error) {
-          const message = (error as SearchServerError).error.message;
-          toast.error('An error occurred while loading the video view count ' + message);
-        }
       }
-    };
-    if (data?.videos) {
-      const ids = Object.values(data.videos.ids);
-      handleViewsCount(ids);
+    } catch (error) {
+      if (error) {
+        const message = (error as SearchServerError).error.message;
+        toast.error('An error occurred while loading the video: ' + message);
+      }
     }
-  }, [data, triggerViewsCount]);
+  };
 
-  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const result = SearchInputSchema.safeParse({ search: query });
+  // useEffect(() => {
+  //   localStorage.setItem('CURRENT_SEARCH', searchTerm);
+  //   setSearchParams({ q: searchTerm });
+  // }, [searchTerm, setSearchParams]);
+
+  // useEffect(() => {
+  //   const handleViewsCount = async (ids: string[]) => {
+  //     try {
+  //       await triggerViewsCount(ids).unwrap();
+  //     } catch (error) {
+  //       if (error) {
+  //         const message = (error as SearchServerError).error.message;
+  //         toast.error('An error occurred while loading the video view count ' + message);
+  //       }
+  //     }
+  //   };
+  //   if (data?.videos) {
+  //     const ids = Object.values(data.videos.ids);
+  //     handleViewsCount(ids);
+  //   }
+  // }, [data, triggerViewsCount]);
+
+  const handleSearch = () => {
+    console.log('handleSearch', searchTerm);
+    const result = SearchInputSchema.safeParse({ search: searchTerm });
     if (!result.success) {
       toast.error('Invalid search query');
       return;
     }
-    setSearchTerm(result.data.search);
+
+    // setSearchTerm(result.data.search);
+    // setSearchParams({ q: result.data.search });
+    localStorage.setItem('CURRENT_SEARCH', result.data.search); //заменить на персистстордж
+    handleSearchTrigger({ search: result.data.search, title: '' });
   };
 
-  useEffect(() => {
-    const handleSearchTrigger = async (searchTerm: string) => {
-      try {
-        await triggerSearch({ search: searchTerm }).unwrap();
-      } catch (error) {
-        if (error) {
-          const message = (error as SearchServerError).error.message;
-          toast.error('An error occurred while loading the video: ' + message);
-        }
-      }
-    };
-    if (!searchTerm) return;
-    if (searchTerm) {
-      handleSearchTrigger(searchTerm);
-    }
-  }, [searchTerm, triggerSearch]);
+  // useEffect(() => {
+  //   if (!searchTerm) return;
+
+  //   if (!incomingRequest) {
+  //     handleSearchTrigger({ search: searchTerm, title: '' });
+  //   }
+  // }, [searchTerm, handleSearchTrigger, incomingRequest]);
 
   const cardClickHandler = (videoId: string) => {
     navigate(`/main/video/${videoId}`);
@@ -86,38 +103,36 @@ export function VideoFeed() {
 
   return (
     <div
-      className={`flex flex-col w-full items-center gap-4 px-5 ${
+      className={`flex flex-col w-full items-center gap-4 px-8 ${
         data?.videos?.ids.length
-          ? 'justify-start py-6 h-full overflow-y-auto'
+          ? 'justify-start py-6 h-full overflow-y-auto scrollbar-hidden'
           : 'justify-center h-full'
       }`}
     >
-      <form
-        className='flex w-full max-w-[800px] group focus-within:ring-[3px] focus-within:ring-primary focus-within:border-primary rounded-4xl border transition-all '
-        onSubmit={handleSearch}
-      >
-        <Input
-          className='focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none focus-visible:border-transparent placeholder:text-base placeholder:leading-4 rounded-r-none  placeholder:text-[#30384C]/40 dark:placeholder:text-[#d0d8e8]/60 w-full pl-5 rounded-l-4xl bg-input/30 dark:bg-input/30 border-r-0'
-          type='text'
-          placeholder='search'
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <Button
-          type='button'
-          variant='ghost'
-          className='rounded-none border-x-0 border-y border-border bg-input/30 hover:bg-input/30 focus:bg-input/30 active:bg-input/30 dark:bg-input/30 dark:hover:bg-input/30 dark:focus:bg-input/30 dark:active:bg-input/30 focus-visible:outline-none focus-visible:ring-0 shadow-none transition-none'
+      <div className='flex w-full items-center'>
+        <form
+          className='flex flex-1 group focus-within:ring-[3px] focus-within:ring-primary focus-within:border-primary rounded-4xl border transition-all '
+          onSubmit={handleSearch}
         >
-          <Star />
-        </Button>
-        <Button
-          type='submit'
-          variant='outline'
-          className='rounded-r-4xl rounded-l-none hover:bg-primary/30 dark:hover:bg-primary/30 active:bg-primary  dark:active:bg-primary active:border-primary active:ring-[3px] active:ring-primary'
-        >
-          <Search />
-        </Button>
-      </form>
+          <Input
+            className='focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none focus-visible:border-transparent placeholder:text-base placeholder:leading-4 rounded-r-none placeholder:text-[#30384C]/40 dark:placeholder:text-[#d0d8e8]/60 w-full pl-5 rounded-l-4xl bg-input/30 dark:bg-input/30 border-r-0'
+            type='text'
+            placeholder='search'
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Button
+            type='submit'
+            variant='outline'
+            className='rounded-r-4xl rounded-l-none hover:bg-primary/30 dark:hover:bg-primary/30 active:bg-primary  dark:active:bg-primary active:border-primary active:ring-[3px] active:ring-primary'
+          >
+            <Search />
+          </Button>
+        </form>
+        {searchTerm.trim() && (
+          <RequestModal request={{ search: searchTerm, title: '' }} title='Save request' />
+        )}
+      </div>
       {searchTerm && (
         <div className='flex justify-between w-full'>
           <p>
@@ -161,7 +176,7 @@ export function VideoFeed() {
                   key={el.id.videoId}
                   onClick={() => cardClickHandler(el.id.videoId)}
                   className={`cursor-pointer py-0 ${
-                    orientation === 'list' ? 'w-[80%] flex flex-row h-[120px]' : 'smx1:w-[280px]'
+                    orientation === 'list' ? 'w-[80%] flex flex-row h-[120px]' : 'lgx1:w-[280px]'
                   }`}
                 >
                   <div

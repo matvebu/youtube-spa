@@ -40,7 +40,8 @@ const RegisterForm = () => {
   const onSubmit = async (data: AuthSchemaType) => {
     try {
       const res = await register(data).unwrap();
-      console.log(res);
+      localStorage.setItem('user', JSON.stringify(res.email));
+      console.log(JSON.stringify(res.email));
       navigate('/signin');
     } catch (e) {
       toast.error(getErrorMessage(e));
