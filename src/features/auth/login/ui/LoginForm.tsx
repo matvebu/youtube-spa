@@ -37,7 +37,6 @@ const LoginForm = () => {
   const onSubmit = async (data: LoginSchemaType) => {
     try {
       const res = await login(data).unwrap();
-      console.log(res);
       localStorage.setItem('TOKEN', res.token);
       navigate('/main/search');
     } catch (e) {

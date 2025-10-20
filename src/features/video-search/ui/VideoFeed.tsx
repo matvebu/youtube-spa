@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { useLazyGetViewsCountQuery, useLazySearchQuery } from '../api/videoApi';
@@ -24,19 +24,15 @@ import type { RequestFormType } from '../../favorites-requests/model/schema';
 export function VideoFeed() {
   const location = useLocation();
   const [orientation, setOrientation] = useState('grid');
-  const incomingRequestSearch = location.state?.request.search;
-  //const incomingRequest = location.state?.request.search;
+  const favoriteRequest = location.state?.request;
+  const favoriteRequestSearch = location.state?.request.search;
   const [triggerSearch, { data, isLoading }] = useLazySearchQuery();
   const [triggerViewsCount, { data: viewsData, isLoading: isViewsLoading }] =
     useLazyGetViewsCountQuery();
   const navigate = useNavigate();
-
-  //const [searchParams, setSearchParams] = useSearchParams();
-
-  const initialQuery = incomingRequestSearch || localStorage.getItem('CURRENT_SEARCH') || '';
-  // const [query, setQuery] = useState(initialQuery);
-
-  const [searchTerm, setSearchTerm] = useState(initialQuery);
+  const [searchTerm, setSearchTerm] = useState(() => {
+    return favoriteRequestSearch || localStorage.getItem('CURRENT_SEARCH') || '';
+  });
 
   const handleSearchTrigger = async (request: RequestFormType) => {
     try {
@@ -53,28 +49,6 @@ export function VideoFeed() {
     }
   };
 
-  // useEffect(() => {
-  //   localStorage.setItem('CURRENT_SEARCH', searchTerm);
-  //   setSearchParams({ q: searchTerm });
-  // }, [searchTerm, setSearchParams]);
-
-  // useEffect(() => {
-  //   const handleViewsCount = async (ids: string[]) => {
-  //     try {
-  //       await triggerViewsCount(ids).unwrap();
-  //     } catch (error) {
-  //       if (error) {
-  //         const message = (error as SearchServerError).error.message;
-  //         toast.error('An error occurred while loading the video view count ' + message);
-  //       }
-  //     }
-  //   };
-  //   if (data?.videos) {
-  //     const ids = Object.values(data.videos.ids);
-  //     handleViewsCount(ids);
-  //   }
-  // }, [data, triggerViewsCount]);
-
   const handleSearch = () => {
     console.log('handleSearch', searchTerm);
     const result = SearchInputSchema.safeParse({ search: searchTerm });
@@ -82,20 +56,25 @@ export function VideoFeed() {
       toast.error('Invalid search query');
       return;
     }
-
-    // setSearchTerm(result.data.search);
-    // setSearchParams({ q: result.data.search });
-    localStorage.setItem('CURRENT_SEARCH', result.data.search); //заменить на персистстордж
+    localStorage.setItem('CURRENT_SEARCH', result.data.search);
     handleSearchTrigger({ search: result.data.search, title: '' });
   };
 
-  // useEffect(() => {
-  //   if (!searchTerm) return;
-
-  //   if (!incomingRequest) {
-  //     handleSearchTrigger({ search: searchTerm, title: '' });
-  //   }
-  // }, [searchTerm, handleSearchTrigger, incomingRequest]);
+  useEffect(() => {
+    if (favoriteRequestSearch) {
+      handleSearchTrigger({
+        search: favoriteRequestSearch,
+        title: favoriteRequest.title,
+        maxResults: favoriteRequest.maxResults,
+        order: favoriteRequest.maxResults,
+      });
+    } else if (localStorage.getItem('CURRENT_SEARCH')) {
+      handleSearchTrigger({
+        search: searchTerm,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const cardClickHandler = (videoId: string) => {
     navigate(`/main/video/${videoId}`);

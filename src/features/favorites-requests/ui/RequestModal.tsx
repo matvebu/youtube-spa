@@ -41,6 +41,7 @@ import {
 } from '../model/store/requestsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../../app/providers/store/store';
+import { getCurrentUser } from '../../auth/model/store/userSlice';
 
 interface RequestModalProps {
   request: RequestFormType & { id?: string };
@@ -48,8 +49,9 @@ interface RequestModalProps {
 }
 const RequestModal = ({ request, title }: RequestModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
+  const currentUser = useSelector((state: RootState) => getCurrentUser(state));
   const existingRequest = useSelector((state: RootState) =>
-    getRequestBySearch(state)(request.search)
+    getRequestBySearch(state)(currentUser, request.search)
   );
   const isRequestSaved = Boolean(existingRequest);
   const [isSaved, setIsSaved] = useState(isRequestSaved);
@@ -78,8 +80,9 @@ const RequestModal = ({ request, title }: RequestModalProps) => {
   }, [request, form]);
 
   const onSaveSubmit = (data: RequestFormType) => {
+    console.log('onSaveSubmit', data);
     try {
-      dispatch(addRequest({ request: data }));
+      dispatch(addRequest({ request: data, currentUser }));
       setIsSaved(true);
       toast.success('Request saved successfully!');
     } catch {
@@ -90,7 +93,7 @@ const RequestModal = ({ request, title }: RequestModalProps) => {
   const onEditSubmit = (data: RequestFormType) => {
     try {
       if (title === 'Update request' && request.id) {
-        dispatch(editRequest({ id: request.id, request: data }));
+        dispatch(editRequest({ request: { id: request.id, ...data }, currentUser }));
         toast.success('Request updated successfully!');
       }
     } catch (error) {
@@ -102,16 +105,11 @@ const RequestModal = ({ request, title }: RequestModalProps) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    form.handleSubmit(title === 'Save request' ? onSaveSubmit : onEditSubmit)(e);
-  };
-
   const handleRemoveFromFavorites = () => {
     try {
       console.log('request.id', existingRequest?.id);
       if (existingRequest) {
-        dispatch(removeRequest({ id: existingRequest.id }));
+        dispatch(removeRequest({ id: existingRequest.id, currentUser }));
         setIsSaved(false);
         toast.success('Request removed from favorites!');
       }
@@ -150,7 +148,10 @@ const RequestModal = ({ request, title }: RequestModalProps) => {
         </SheetHeader>
         <div className='flex items-center flex-col justify-center lg:p-8 gap-6'>
           <Form {...form}>
-            <form className='grid gap-4 w-full max-w-sm min-w-0' onSubmit={handleSubmit}>
+            <form
+              className='grid gap-4 w-full max-w-sm min-w-0'
+              onSubmit={form.handleSubmit(title === 'Save request' ? onSaveSubmit : onEditSubmit)}
+            >
               <FormField
                 control={form.control}
                 name='search'
@@ -171,7 +172,7 @@ const RequestModal = ({ request, title }: RequestModalProps) => {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input type='title' placeholder='title' autoComplete='title' {...field} />
+                      <Input type='text' placeholder='title' autoComplete='title' {...field} />
                     </FormControl>
                     <FormMessage className='text-xs leading-tight' />
                   </FormItem>

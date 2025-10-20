@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolkit';
 import type { RequestFormType } from '../schema';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -9,87 +9,88 @@ interface UserRequests {
 }
 
 interface RequestsState {
-  [email: string]: UserRequests;
+  [email: string]: UserRequests | null;
 }
-const getCurrentUser = () => {
-  return localStorage.getItem('user');
-};
 
 const getInitialState = (): RequestsState => {
-  const currentUser = getCurrentUser();
-  return currentUser
-    ? JSON.parse(localStorage.getItem(currentUser) || '{}')
-    : ({} as RequestsState);
+  return {} as RequestsState;
 };
+
+export interface AddRequestPayload {
+  request: RequestFormType;
+  currentUser: string;
+}
+
+export interface EditRequestPayload {
+  request: RequestType;
+  currentUser: string;
+}
+
+export interface RemoveRequestPayload {
+  id: string;
+  currentUser: string;
+}
 
 const requestsSlice = createSlice({
   name: 'requests',
   initialState: getInitialState(),
   selectors: {
-    getCurrentUserRequests: (state) => {
-      const currentUser = getCurrentUser();
-      if (!currentUser) return [];
-      return Object.values(state[currentUser] || {}) as RequestType[];
-    },
-    getRequestBySearch:
-      (state) =>
-      (searchTerm: string): RequestType | null => {
-        const currentUser = getCurrentUser();
-        if (!currentUser) return null;
-        const userRequests = Object.values(state[currentUser] || {}) as RequestType[];
-        return userRequests.find((request) => request.search === searchTerm) || null;
-      },
-    getRequestById:
-      (state) =>
-      (requestId: string): RequestType | null => {
-        const currentUser = getCurrentUser();
-        if (!currentUser) return null;
-        return state[currentUser]?.[requestId] || null;
-      },
+    getCurrentUserRequests: createSelector(
+      [(state) => state.requests],
+      (requests) =>
+        (currentUser: string): RequestType[] => {
+          if (!currentUser) return [];
+          return Object.values(requests[currentUser] || {}) as RequestType[];
+        }
+    ),
+
+    getRequestBySearch: createSelector(
+      [(state) => state.requests],
+      (requests) =>
+        (currentUser: string, searchTerm: string): RequestType | null => {
+          if (!currentUser || !requests[currentUser]) return null;
+          const userRequests = Object.values(requests[currentUser]) as RequestType[];
+          return userRequests.find((request) => request.search === searchTerm) || null;
+        }
+    ),
+
+    getRequestById: createSelector(
+      [(state) => state.requests],
+      (requests) =>
+        (currentUser: string, requestId: string): RequestType | null => {
+          if (!currentUser) return null;
+          return requests[currentUser]?.[requestId] || null;
+        }
+    ),
   },
 
   reducers: {
-    addRequest: (state, action: PayloadAction<{ request: RequestFormType }>) => {
-      const currentUser = getCurrentUser();
+    addRequest: (state, action: PayloadAction<AddRequestPayload>) => {
+      const { currentUser, request } = action.payload;
       if (!currentUser) return;
-
       if (!state[currentUser]) {
         state[currentUser] = {};
       }
 
       const existingRequest = Object.values(state[currentUser]).find(
-        (req: RequestType) => req.search === action.payload.request.search
+        (req: RequestType) => req.search === request.search
       );
 
       if (!existingRequest) {
         const id = uuidv4();
-        const requestWithId: RequestType = { ...action.payload.request, id };
+        const requestWithId: RequestType = { ...request, id };
         state[currentUser][id] = requestWithId;
-        localStorage.setItem(currentUser, JSON.stringify(state));
       }
     },
-    editRequest: (state, action: PayloadAction<{ id: string; request: RequestFormType }>) => {
-      const currentUser = getCurrentUser();
-      if (!currentUser) return;
-
-      if (!state[currentUser]) {
-        state[currentUser] = {};
+    editRequest: (state, action: PayloadAction<EditRequestPayload>) => {
+      const { currentUser, request } = action.payload;
+      if (currentUser && request?.id && state[currentUser]) {
+        state[currentUser][request.id] = request;
       }
-      const existingRequest = Object.values(state[currentUser]).find(
-        (req: RequestType) => req.search === action.payload.request.search
-      );
-
-      if (existingRequest) throw new Error('Request already exists');
-      const requestWithId: RequestType = { ...action.payload.request, id: action.payload.id };
-      state[currentUser][action.payload.id] = requestWithId;
-      localStorage.setItem(currentUser, JSON.stringify(state));
     },
-    removeRequest: (state, action: PayloadAction<{ id: string }>) => {
-      const currentUser = getCurrentUser();
-      if (!currentUser || !state[currentUser]) return;
-      delete state[currentUser][action.payload.id];
-
-      localStorage.setItem(currentUser, JSON.stringify(state));
+    removeRequest: (state, action: PayloadAction<RemoveRequestPayload>) => {
+      const { currentUser, id } = action.payload;
+      delete state[currentUser]?.[id];
     },
   },
 });
