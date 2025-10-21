@@ -26,19 +26,21 @@ export function VideoFeed() {
   const [orientation, setOrientation] = useState('grid');
   const favoriteRequest = location.state?.request;
   const favoriteRequestSearch = location.state?.request.search;
-  const [triggerSearch, { data, isLoading }] = useLazySearchQuery();
-  const [triggerViewsCount, { data: viewsData, isLoading: isViewsLoading }] =
-    useLazyGetViewsCountQuery();
+  const [triggerSearch, { data }] = useLazySearchQuery();
+  const [triggerViewsCount, { data: viewsData }] = useLazyGetViewsCountQuery();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState(() => {
     return favoriteRequestSearch || localStorage.getItem('CURRENT_SEARCH') || '';
   });
 
   const handleSearchTrigger = async (request: RequestFormType) => {
+    console.log('here');
     try {
-      await triggerSearch(request).unwrap();
-      if (data?.videos) {
-        const ids = Object.values(data.videos.ids);
+      console.log('here');
+      const result = await triggerSearch(request).unwrap();
+      if (result?.videos) {
+        console.log('here');
+        const ids = Object.values(result.videos.ids);
         await triggerViewsCount(ids).unwrap();
       }
     } catch (error) {
@@ -50,6 +52,7 @@ export function VideoFeed() {
   };
 
   const handleSearch = () => {
+    console.log('here');
     console.log('handleSearch', searchTerm);
     const result = SearchInputSchema.safeParse({ search: searchTerm });
     if (!result.success) {
@@ -61,7 +64,9 @@ export function VideoFeed() {
   };
 
   useEffect(() => {
+    console.log('here');
     if (favoriteRequestSearch) {
+      console.log('here');
       handleSearchTrigger({
         search: favoriteRequestSearch,
         title: favoriteRequest.title,
@@ -69,6 +74,7 @@ export function VideoFeed() {
         order: favoriteRequest.maxResults,
       });
     } else if (localStorage.getItem('CURRENT_SEARCH')) {
+      console.log('here');
       handleSearchTrigger({
         search: searchTerm,
       });
@@ -208,14 +214,9 @@ export function VideoFeed() {
                 </Card>
               );
             })
-          : isLoading && isViewsLoading
-            ? Array.from({ length: 12 }).map((_, i) => (
-                <Skeleton
-                  key={i}
-                  className='w-[280px] h-[280px] rounded-xl border py-6 shadow-sm'
-                />
-              ))
-            : null}
+          : Array.from({ length: 12 }).map((_, i) => (
+              <Skeleton key={i} className='w-[280px] h-[280px] rounded-xl border py-6 shadow-sm' />
+            ))}
       </div>
     </div>
   );

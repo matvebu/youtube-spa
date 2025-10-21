@@ -13,6 +13,10 @@ export const videoApi = createApi({
   baseQuery: createVideoBaseQuery({
     baseUrl: 'https://www.googleapis.com/youtube/v3/',
   }),
+  serializeQueryArgs: ({ endpointName, queryArgs }) => {
+    const args = queryArgs as SearchRequestType;
+    return `${endpointName}-${args.search}-${args.maxResults}-${args.order}`;
+  },
   endpoints(build) {
     return {
       search: build.query<

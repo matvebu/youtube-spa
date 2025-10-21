@@ -1,4 +1,4 @@
-import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RequestFormType } from '../schema';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -8,7 +8,7 @@ interface UserRequests {
   [id: string]: RequestType;
 }
 
-interface RequestsState {
+export interface RequestsState {
   [email: string]: UserRequests | null;
 }
 
@@ -35,33 +35,30 @@ const requestsSlice = createSlice({
   name: 'requests',
   initialState: getInitialState(),
   selectors: {
-    getCurrentUserRequests: createSelector(
-      [(state) => state.requests],
+    getCurrentUserRequests:
       (requests) =>
-        (currentUser: string): RequestType[] => {
-          if (!currentUser) return [];
-          return Object.values(requests[currentUser] || {}) as RequestType[];
-        }
-    ),
+      (currentUser: string): RequestType[] => {
+        if (!currentUser) return [];
+        return Object.values(requests[currentUser] || {}) as RequestType[];
+      },
 
-    getRequestBySearch: createSelector(
-      [(state) => state.requests],
+    getRequestBySearch:
       (requests) =>
-        (currentUser: string, searchTerm: string): RequestType | null => {
-          if (!currentUser || !requests[currentUser]) return null;
-          const userRequests = Object.values(requests[currentUser]) as RequestType[];
-          return userRequests.find((request) => request.search === searchTerm) || null;
-        }
-    ),
+      (currentUser: string, searchTerm: string): RequestType | null => {
+        console.log(requests);
+        console.log(currentUser);
+        console.log(requests[currentUser]);
+        if (!currentUser || !requests[currentUser]) return null;
+        const userRequests = Object.values(requests[currentUser]) as RequestType[];
+        return userRequests.find((request) => request.search === searchTerm) || null;
+      },
 
-    getRequestById: createSelector(
-      [(state) => state.requests],
+    getRequestById:
       (requests) =>
-        (currentUser: string, requestId: string): RequestType | null => {
-          if (!currentUser) return null;
-          return requests[currentUser]?.[requestId] || null;
-        }
-    ),
+      (currentUser: string, requestId: string): RequestType | null => {
+        if (!currentUser) return null;
+        return requests[currentUser]?.[requestId] || null;
+      },
   },
 
   reducers: {

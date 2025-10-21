@@ -1,11 +1,16 @@
 import { useSelector } from 'react-redux';
 import { getCurrentUserRequests, type RequestType } from '../model/store/requestsSlice';
 import { useNavigate } from 'react-router-dom';
-import RequestModal from './RequestModal';
 import { Table, TableBody, TableCaption, TableCell, TableRow } from '../../../components/ui/table';
+import { lazy, Suspense } from 'react';
+import type { RootState } from '../../../app/providers/store/store';
+import { getCurrentUser } from '../../auth/model/store/userSlice';
+
+const RequestModal = lazy(() => import('./RequestModal'));
 
 const RequestsList = () => {
-  const requests = useSelector(getCurrentUserRequests);
+  const currentUser = useSelector((state: RootState) => getCurrentUser(state));
+  const requests = useSelector((state: RootState) => getCurrentUserRequests(state)(currentUser));
   const navigate = useNavigate();
 
   const clickRequestHandler = (request: RequestType) => {
@@ -21,7 +26,9 @@ const RequestsList = () => {
               {request.title}
             </TableCell>
             <TableCell className='text-center'>
-              <RequestModal request={request} title='Update request' />
+              <Suspense fallback={<div>Loading...</div>}>
+                <RequestModal request={request} title='Update request' />
+              </Suspense>
             </TableCell>
           </TableRow>
         ))}

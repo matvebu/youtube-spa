@@ -47,6 +47,7 @@ interface RequestModalProps {
   request: RequestFormType & { id?: string };
   title: 'Save request' | 'Update request';
 }
+
 const RequestModal = ({ request, title }: RequestModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const currentUser = useSelector((state: RootState) => getCurrentUser(state));
