@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
+//import { useDispatch } from 'react-redux';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
-import { useLazyGetViewsCountQuery, useLazySearchQuery } from '../api/videoApi';
-import type { SearchServerError } from '../model/types';
+import { useLazyGetViewsCountQuery, useSearchQuery } from '../api/videoApi';
 import {
   Card,
   CardTitle,
@@ -19,68 +19,50 @@ import { List, LayoutGrid, Search } from 'lucide-react';
 import { SearchInputSchema } from '../model/schema';
 import { ToggleGroup, ToggleGroupItem } from '../../../components/ui/toggle-group';
 import RequestModal from '../../favorites-requests/ui/RequestModal';
-import type { RequestFormType } from '../../favorites-requests/model/schema';
+import type { RootState } from '../../../app/providers/store/store';
+import { useSelector } from 'react-redux';
+//import { setCurrentSearch } from '../model/store/currentSearchSlice';
+//import { setCurrentSearch, type RequestType } from '../model/store/currentSearchSlice';
 
 export function VideoFeed() {
+  //const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
-  const [orientation, setOrientation] = useState('grid');
-  const favoriteRequest = location.state?.request;
-  const favoriteRequestSearch = location.state?.request.search;
-  const [triggerSearch, { data }] = useLazySearchQuery();
-  const [triggerViewsCount, { data: viewsData }] = useLazyGetViewsCountQuery();
   const navigate = useNavigate();
+  const [orientation, setOrientation] = useState('grid');
+
+  const currentSearch = useSelector((state: RootState) => state.currentSearch.request);
   const [searchTerm, setSearchTerm] = useState(() => {
-    return favoriteRequestSearch || localStorage.getItem('CURRENT_SEARCH') || '';
+    return location.state?.request.search || currentSearch?.search || '';
   });
 
-  const handleSearchTrigger = async (request: RequestFormType) => {
-    console.log('here');
-    try {
-      console.log('here');
-      const result = await triggerSearch(request).unwrap();
-      if (result?.videos) {
-        console.log('here');
-        const ids = Object.values(result.videos.ids);
-        await triggerViewsCount(ids).unwrap();
+  const [searchRequest, setSearchRequest] = useState(() => {
+    return (
+      location.state?.request ||
+      currentSearch || {
+        search: searchTerm,
       }
-    } catch (error) {
-      if (error) {
-        const message = (error as SearchServerError).error.message;
-        toast.error('An error occurred while loading the video: ' + message);
-      }
+    );
+  });
+
+  const { data } = useSearchQuery(searchRequest);
+  const [triggerViewsCount, { data: viewsData }] = useLazyGetViewsCountQuery();
+
+  useEffect(() => {
+    if (data?.videos) {
+      const ids = Object.values(data.videos.ids);
+      triggerViewsCount(ids);
     }
-  };
+  }, [data, triggerViewsCount]);
 
   const handleSearch = () => {
-    console.log('here');
-    console.log('handleSearch', searchTerm);
     const result = SearchInputSchema.safeParse({ search: searchTerm });
     if (!result.success) {
       toast.error('Invalid search query');
       return;
     }
-    localStorage.setItem('CURRENT_SEARCH', result.data.search);
-    handleSearchTrigger({ search: result.data.search, title: '' });
+    // dispatch(setCurrentSearch(result));
+    setSearchRequest({ search: result.data.search });
   };
-
-  useEffect(() => {
-    console.log('here');
-    if (favoriteRequestSearch) {
-      console.log('here');
-      handleSearchTrigger({
-        search: favoriteRequestSearch,
-        title: favoriteRequest.title,
-        maxResults: favoriteRequest.maxResults,
-        order: favoriteRequest.maxResults,
-      });
-    } else if (localStorage.getItem('CURRENT_SEARCH')) {
-      console.log('here');
-      handleSearchTrigger({
-        search: searchTerm,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const cardClickHandler = (videoId: string) => {
     navigate(`/main/video/${videoId}`);
@@ -97,7 +79,10 @@ export function VideoFeed() {
       <div className='flex w-full items-center'>
         <form
           className='flex flex-1 group focus-within:ring-[3px] focus-within:ring-primary focus-within:border-primary rounded-4xl border transition-all '
-          onSubmit={handleSearch}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch();
+          }}
         >
           <Input
             className='focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none focus-visible:border-transparent placeholder:text-base placeholder:leading-4 rounded-r-none placeholder:text-[#30384C]/40 dark:placeholder:text-[#d0d8e8]/60 w-full pl-5 rounded-l-4xl bg-input/30 dark:bg-input/30 border-r-0'
@@ -165,7 +150,7 @@ export function VideoFeed() {
                   }`}
                 >
                   <div
-                    className={`block relative after:content-[""] after:absolute after:inset-0 after:rounded-[14px] after:bg-transparent after:pointer-events-none after:transition-colors hover:after:bg-[rgba(62,170,102,0.2)] ${
+                    className={`block relative h-full after:content-[""] after:absolute after:inset-0 after:rounded-[14px] after:bg-transparent after:pointer-events-none after:transition-colors hover:after:bg-[rgba(62,170,102,0.2)] ${
                       orientation === 'list' ? 'flex flex-row w-full' : ''
                     }`}
                   >

@@ -5,6 +5,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { userReducer } from '../../../features/auth/model/store/userSlice';
+import { currentSearchReducer } from '../../../features/video-search/model/store/currentSearchSlice';
 
 const persistConfig = {
   key: 'root',
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   [videoApi.reducerPath]: videoApi.reducer,
   requests: requestsReducer,
   currentUser: userReducer,
+  currentSearch: currentSearchReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

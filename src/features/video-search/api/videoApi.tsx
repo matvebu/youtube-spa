@@ -47,4 +47,4 @@ export const videoApi = createApi({
   },
 });
 
-export const { useLazySearchQuery, useLazyGetViewsCountQuery } = videoApi;
+export const { useSearchQuery, useLazyGetViewsCountQuery } = videoApi;

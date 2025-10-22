@@ -1,10 +1,11 @@
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentUserRequests, type RequestType } from '../model/store/requestsSlice';
 import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCaption, TableCell, TableRow } from '../../../components/ui/table';
 import { lazy, Suspense } from 'react';
-import type { RootState } from '../../../app/providers/store/store';
+import type { AppDispatch, RootState } from '../../../app/providers/store/store';
 import { getCurrentUser } from '../../auth/model/store/userSlice';
+import { setCurrentSearch } from '../../video-search/model/store/currentSearchSlice';
 
 const RequestModal = lazy(() => import('./RequestModal'));
 
@@ -13,8 +14,11 @@ const RequestsList = () => {
   const requests = useSelector((state: RootState) => getCurrentUserRequests(state)(currentUser));
   const navigate = useNavigate();
 
+  const dispatch = useDispatch<AppDispatch>();
+
   const clickRequestHandler = (request: RequestType) => {
-    navigate(`/main/search`, { state: { request } });
+    dispatch(setCurrentSearch(request));
+    navigate('/main/search', { state: { request } });
   };
   return (
     <Table className='w-full flex flex-col justify-center'>

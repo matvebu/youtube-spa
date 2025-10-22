@@ -5,7 +5,7 @@ import { Button } from '../../components/ui/button';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Logo from '../../assets//logo.png';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMediaQuery } from '../utils/useMediaQuery';
 import { Sheet, SheetContent } from '../../components/ui/sheet';
 
@@ -13,10 +13,8 @@ const Header = () => {
   const isMobile = useMediaQuery('(max-width: 480px)');
   const navigate = useNavigate();
   const location = useLocation();
-  const [value, setValue] = useState(() => {
-    const path = location.pathname.split('/')[2];
-    return path === 'video' ? 'search' : path;
-  });
+  const [value, setValue] = useState('search');
+
   const [open, setOpen] = useState(false);
   const openHandler = () => {
     setOpen(true);
@@ -25,6 +23,11 @@ const Header = () => {
     setValue(val);
     navigate(`/main/${val}`);
   };
+
+  useEffect(() => {
+    const path = location.pathname.split('/')[2];
+    setValue(path === 'video' ? 'search' : path);
+  }, [location.pathname]);
   const themeContext = useTheme();
   const themeToggler = () =>
     themeContext.theme === 'dark' ? themeContext.setTheme('light') : themeContext.setTheme('dark');
