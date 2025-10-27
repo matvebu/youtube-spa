@@ -45,9 +45,6 @@ const requestsSlice = createSlice({
     getRequestBySearch:
       (requests) =>
       (currentUser: string, searchTerm: string): RequestType | null => {
-        console.log(requests);
-        console.log(currentUser);
-        console.log(requests[currentUser]);
         if (!currentUser || !requests[currentUser]) return null;
         const userRequests = Object.values(requests[currentUser]) as RequestType[];
         return userRequests.find((request) => request.search === searchTerm) || null;

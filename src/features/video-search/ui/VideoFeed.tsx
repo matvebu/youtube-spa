@@ -43,8 +43,6 @@ function VideoFeed() {
   const [triggerViewsCount, { data: viewsData, isLoading: isViewsLoading }] =
     useLazyGetViewsCountQuery();
 
-  console.log(data);
-
   useEffect(() => {
     if (data?.videos) {
       const ids = Object.values(data.videos.ids);
@@ -65,8 +63,6 @@ function VideoFeed() {
   const cardClickHandler = (videoId: string) => {
     navigate(`/main/video/${videoId}`);
   };
-  console.log(data?.videos);
-  console.log(isLoading && isViewsLoading);
   return (
     <div
       className={`flex flex-col w-full items-center gap-4 px-8 h-full py-6 overflow-hidden  ${
@@ -77,7 +73,7 @@ function VideoFeed() {
             : 'justify-center'
       }`}
     >
-      <div className='flex w-full items-center'>
+      <div className='relative flex w-full items-center'>
         <form
           className='flex flex-1 group focus-within:ring-[3px] focus-within:ring-primary focus-within:border-primary rounded-4xl border transition-all '
           onSubmit={(e) => {
@@ -100,9 +96,13 @@ function VideoFeed() {
             <Search />
           </Button>
         </form>
-        <RequestModal request={{ search: searchTerm, title: '' }} title='Save request' />
+        <RequestModal
+          className='absolute right-10.5'
+          request={{ search: searchTerm, title: '' }}
+          title='Save request'
+        />
       </div>
-      {searchTerm && (
+      {data?.videos && (
         <div className='flex justify-between w-full'>
           <p>
             Results for the query <span className='font-bold'>"{searchTerm}"</span>:{' '}

@@ -42,13 +42,18 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../../app/providers/store/store';
 import { getCurrentUser } from '../../auth/model/store/userSlice';
+import { cn } from '../../../shared/lib/utils/cn';
+
+const buttonClass =
+  'group cursor-pointer rounded-none border-none bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent dark:active:bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent focus-visible:outline-none focus-visible:ring-0 shadow-none transition-none';
 
 interface RequestModalProps {
   request: RequestFormType & { id?: string };
   title: 'Save request' | 'Update request';
+  className: string;
 }
 
-const RequestModal = ({ request, title }: RequestModalProps) => {
+const RequestModal: React.FC<RequestModalProps> = ({ request, title, className }) => {
   const dispatch = useDispatch<AppDispatch>();
   const currentUser = useSelector((state: RootState) => getCurrentUser(state));
   const existingRequest = useSelector((state: RootState) =>
@@ -81,7 +86,6 @@ const RequestModal = ({ request, title }: RequestModalProps) => {
   }, [request, form]);
 
   const onSaveSubmit = (data: RequestFormType) => {
-    console.log('onSaveSubmit', data);
     try {
       dispatch(addRequest({ request: data, currentUser }));
       setIsSaved(true);
@@ -108,7 +112,6 @@ const RequestModal = ({ request, title }: RequestModalProps) => {
 
   const handleRemoveFromFavorites = () => {
     try {
-      console.log('request.id', existingRequest?.id);
       if (existingRequest) {
         dispatch(removeRequest({ id: existingRequest.id, currentUser }));
         setIsSaved(false);
@@ -124,7 +127,7 @@ const RequestModal = ({ request, title }: RequestModalProps) => {
       <Button
         type='button'
         variant='ghost'
-        className='rounded-none border-x-0 border-y border-border bg-input/30 hover:bg-input/30 focus:bg-input/30 active:bg-input/30 dark:bg-input/30 dark:hover:bg-input/30 dark:focus:bg-input/30 dark:active:bg-input/30 focus-visible:outline-none focus-visible:ring-0 shadow-none transition-none'
+        className={cn(buttonClass, className)}
         onClick={handleRemoveFromFavorites}
       >
         <Star className='text-yellow-500' />
@@ -135,22 +138,22 @@ const RequestModal = ({ request, title }: RequestModalProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button
-          type='button'
-          variant='ghost'
-          className='rounded-none border-x-0 border-y border-border bg-input/30 hover:bg-input/30 focus:bg-input/30 active:bg-input/30 dark:bg-input/30 dark:hover:bg-input/30 dark:focus:bg-input/30 dark:active:bg-input/30 focus-visible:outline-none focus-visible:ring-0 shadow-none transition-none'
-        >
-          {title === 'Save request' ? <Star /> : <Edit />}
+        <Button type='button' variant='ghost' className={cn(buttonClass, className)}>
+          {title === 'Save request' ? (
+            <Star className='group-hover:text-yellow-500 dark:group-hover:text-yellow-500 transition-colors' />
+          ) : (
+            <Edit />
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent side='right' className='w-full flex flex-col gap-3 max-w-xs p-3'>
         <SheetHeader>
-          <SheetTitle>{title}</SheetTitle>
+          <SheetTitle className='items-center font-bold text-primary'>{title}</SheetTitle>
         </SheetHeader>
         <div className='flex items-center flex-col justify-center lg:p-8 gap-6'>
           <Form {...form}>
             <form
-              className='grid gap-4 w-full max-w-sm min-w-0'
+              className='grid gap-8 w-full max-w-sm min-w-0'
               onSubmit={form.handleSubmit(title === 'Save request' ? onSaveSubmit : onEditSubmit)}
             >
               <FormField
@@ -240,7 +243,7 @@ const RequestModal = ({ request, title }: RequestModalProps) => {
                   </FormItem>
                 )}
               />
-              <SheetFooter className='flex flex-row gap-2'>
+              <SheetFooter className='flex flex-row gap-2 px-0'>
                 <Button className='w-1/2 active:scale-95' type='submit'>
                   {title === 'Save request' ? 'Save' : 'Update'}
                 </Button>
