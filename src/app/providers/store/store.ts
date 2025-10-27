@@ -10,6 +10,7 @@ import { currentSearchReducer } from '../../../features/video-search/model/store
 const persistConfig = {
   key: 'root',
   storage,
+  whitelist: ['requests', 'currentSearch', 'currentUser'],
   blacklist: [authApi.reducerPath, videoApi.reducerPath],
 };
 

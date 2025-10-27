@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RequestFormType } from '../../../favorites-requests/model/schema';
 
-export type RequestType = RequestFormType & { id: string };
+export type RequestType = RequestFormType & { id?: string };
 
 interface CurrentSearchState {
   request: RequestType | null;

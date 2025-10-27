@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RequestFormType } from '../schema';
 import { v4 as uuidv4 } from 'uuid';
 
-export type RequestType = RequestFormType & { id: string };
+export type RequestType = RequestFormType & { id?: string };
 
 interface UserRequests {
   [id: string]: RequestType;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-//import { useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { useLazyGetViewsCountQuery, useSearchQuery } from '../api/videoApi';
@@ -19,29 +19,23 @@ import { List, LayoutGrid, Search } from 'lucide-react';
 import { SearchInputSchema } from '../model/schema';
 import { ToggleGroup, ToggleGroupItem } from '../../../components/ui/toggle-group';
 import RequestModal from '../../favorites-requests/ui/RequestModal';
-import type { RootState } from '../../../app/providers/store/store';
+import type { AppDispatch, RootState } from '../../../app/providers/store/store';
 import { useSelector } from 'react-redux';
-//import { setCurrentSearch } from '../model/store/currentSearchSlice';
-//import { setCurrentSearch, type RequestType } from '../model/store/currentSearchSlice';
+import { setCurrentSearch } from '../model/store/currentSearchSlice';
 
 export function VideoFeed() {
-  //const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const navigate = useNavigate();
   const [orientation, setOrientation] = useState('grid');
 
   const currentSearch = useSelector((state: RootState) => state.currentSearch.request);
   const [searchTerm, setSearchTerm] = useState(() => {
-    return location.state?.request.search || currentSearch?.search || '';
+    return location.state?.request?.search || currentSearch?.search || '';
   });
 
   const [searchRequest, setSearchRequest] = useState(() => {
-    return (
-      location.state?.request ||
-      currentSearch || {
-        search: searchTerm,
-      }
-    );
+    return location.state?.request || currentSearch || { search: searchTerm };
   });
 
   const { data } = useSearchQuery(searchRequest);
@@ -60,7 +54,7 @@ export function VideoFeed() {
       toast.error('Invalid search query');
       return;
     }
-    // dispatch(setCurrentSearch(result));
+    dispatch(setCurrentSearch(result.data));
     setSearchRequest({ search: result.data.search });
   };
 

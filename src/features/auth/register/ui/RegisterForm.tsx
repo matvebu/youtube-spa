@@ -19,12 +19,8 @@ import { useRegisterMutation } from '../../api/authApi';
 import { getErrorMessage } from '../../api/authBaseQuery';
 import { toast } from 'sonner';
 import { AuthSchema, type AuthSchemaType } from '../../model/schema';
-import { upsertUser } from '../../model/store/userSlice';
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '../../../../app/providers/store/store';
 
 const RegisterForm = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [register, { isLoading: isFetching }] = useRegisterMutation();
 
@@ -43,9 +39,7 @@ const RegisterForm = () => {
 
   const onSubmit = async (data: AuthSchemaType) => {
     try {
-      const res = await register(data).unwrap();
-      console.log(res.email);
-      dispatch(upsertUser(res.email));
+      await register(data).unwrap();
       navigate('/signin');
     } catch (e) {
       toast.error(getErrorMessage(e));

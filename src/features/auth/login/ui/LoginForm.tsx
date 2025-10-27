@@ -20,7 +20,12 @@ import { toast } from 'sonner';
 import { useLoginMutation } from '../../api/authApi';
 import { type LoginSchemaType, LoginSchema } from '../../model/schema';
 
+import { upsertUser } from '../../model/store/userSlice';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '../../../../app/providers/store/store';
+
 const LoginForm = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [login, { isLoading: isFetching }] = useLoginMutation();
 
@@ -38,6 +43,7 @@ const LoginForm = () => {
     try {
       const res = await login(data).unwrap();
       localStorage.setItem('TOKEN', res.token);
+      dispatch(upsertUser(data.email));
       navigate('/main/search');
     } catch (e) {
       toast.error(getErrorMessage(e));
