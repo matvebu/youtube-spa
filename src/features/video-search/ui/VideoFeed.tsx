@@ -22,8 +22,9 @@ import RequestModal from '../../favorites-requests/ui/RequestModal';
 import type { AppDispatch, RootState } from '../../../app/providers/store/store';
 import { useSelector } from 'react-redux';
 import { setCurrentSearch } from '../model/store/currentSearchSlice';
+import { skipToken } from '@reduxjs/toolkit/query';
 
-export function VideoFeed() {
+function VideoFeed() {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,11 +36,14 @@ export function VideoFeed() {
   });
 
   const [searchRequest, setSearchRequest] = useState(() => {
-    return location.state?.request || currentSearch || { search: searchTerm };
+    return location.state?.request || currentSearch || null;
   });
 
-  const { data } = useSearchQuery(searchRequest);
-  const [triggerViewsCount, { data: viewsData }] = useLazyGetViewsCountQuery();
+  const { data, isLoading } = useSearchQuery(searchRequest ?? skipToken);
+  const [triggerViewsCount, { data: viewsData, isLoading: isViewsLoading }] =
+    useLazyGetViewsCountQuery();
+
+  console.log(data);
 
   useEffect(() => {
     if (data?.videos) {
@@ -61,13 +65,16 @@ export function VideoFeed() {
   const cardClickHandler = (videoId: string) => {
     navigate(`/main/video/${videoId}`);
   };
-
+  console.log(data?.videos);
+  console.log(isLoading && isViewsLoading);
   return (
     <div
-      className={`flex flex-col w-full items-center gap-4 px-8 ${
-        data?.videos?.ids.length
-          ? 'justify-start py-6 h-full overflow-y-auto scrollbar-hidden'
-          : 'justify-center h-full'
+      className={`flex flex-col w-full items-center gap-4 px-8 h-full py-6 overflow-hidden  ${
+        isLoading || isViewsLoading
+          ? ''
+          : data?.videos !== undefined
+            ? 'justify-start h-full overflow-y-auto scrollbar-hidden'
+            : 'justify-center'
       }`}
     >
       <div className='flex w-full items-center'>
@@ -93,9 +100,7 @@ export function VideoFeed() {
             <Search />
           </Button>
         </form>
-        {searchTerm.trim() && (
-          <RequestModal request={{ search: searchTerm, title: '' }} title='Save request' />
-        )}
+        <RequestModal request={{ search: searchTerm, title: '' }} title='Save request' />
       </div>
       {searchTerm && (
         <div className='flex justify-between w-full'>
@@ -193,10 +198,17 @@ export function VideoFeed() {
                 </Card>
               );
             })
-          : Array.from({ length: 12 }).map((_, i) => (
-              <Skeleton key={i} className='w-[280px] h-[280px] rounded-xl border py-6 shadow-sm' />
-            ))}
+          : isLoading || isViewsLoading
+            ? Array.from({ length: 12 }).map((_, i) => (
+                <Skeleton
+                  key={i}
+                  className='w-[280px] h-[280px] rounded-xl border py-6 shadow-sm'
+                />
+              ))
+            : null}
       </div>
     </div>
   );
 }
+
+export default VideoFeed;

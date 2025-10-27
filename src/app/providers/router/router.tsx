@@ -6,7 +6,7 @@ import MainLayout from '../../../shared/ui/MainLayout';
 const LoginPage = lazy(() => import('../../../pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('../../../pages/auth/RegisterPage'));
 const FavoritesPage = lazy(() => import('../../../pages/favorites-page/FavoritesPage'));
-const VideoFeedPage = lazy(() => import('../../../pages/video-feed-page/VideoFeedPage'));
+const VideoFeed = lazy(() => import('../../../features/video-search/ui/VideoFeed'));
 const VideoPage = lazy(() => import('../../../pages/video-page/VideoPage'));
 
 export const router = createBrowserRouter([
@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: 'search',
-            element: <VideoFeedPage />,
+            element: <VideoFeed />,
           },
           {
             path: 'favorites',

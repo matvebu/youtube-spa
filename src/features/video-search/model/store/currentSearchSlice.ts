@@ -1,10 +1,10 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { RequestFormType } from '../../../favorites-requests/model/schema';
 
-export type RequestType = RequestFormType & { id?: string };
+type CurrentRequestType = RequestFormType & { id?: string };
 
 interface CurrentSearchState {
-  request: RequestType | null;
+  request: CurrentRequestType | null;
 }
 
 const initialState: CurrentSearchState = {
@@ -15,7 +15,7 @@ const currentSearchSlice = createSlice({
   name: 'currentSearch',
   initialState,
   reducers: {
-    setCurrentSearch: (state, action: PayloadAction<RequestType>) => {
+    setCurrentSearch: (state, action: PayloadAction<CurrentRequestType>) => {
       state.request = action.payload;
     },
     clearCurrentSearch: (state) => {
