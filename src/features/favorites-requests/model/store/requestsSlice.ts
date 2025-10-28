@@ -4,17 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 export type RequestType = RequestFormType & { id: string };
 
-interface UserRequests {
+export interface UserRequests {
   [id: string]: RequestType;
 }
 
 export interface RequestsState {
   [email: string]: UserRequests | null;
 }
-
-const getInitialState = (): RequestsState => {
-  return {} as RequestsState;
-};
 
 export interface AddRequestPayload {
   request: RequestFormType;
@@ -30,6 +26,10 @@ export interface RemoveRequestPayload {
   id: string;
   currentUser: string;
 }
+
+const getInitialState = (): RequestsState => {
+  return {} as RequestsState;
+};
 
 const requestsSlice = createSlice({
   name: 'requests',

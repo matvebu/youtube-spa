@@ -4,6 +4,7 @@ import { clearCurrentSearch } from '../../features/video-search/model/store/curr
 
 export const logout = () => {
   localStorage.setItem('TOKEN', '');
+  localStorage.setItem('ORIENTATION', '');
   store.dispatch(clearCurrentSearch());
   store.dispatch(removeUser());
 };

@@ -45,20 +45,22 @@ import { getCurrentUser } from '../../auth/model/store/userSlice';
 import { cn } from '../../../shared/lib/utils/cn';
 
 const buttonClass =
-  'group cursor-pointer rounded-none border-none bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent dark:active:bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent focus-visible:outline-none focus-visible:ring-0 shadow-none transition-none';
+  'group cursor-pointer rounded-none border-none bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent focus-visible:outline-none focus-visible:ring-0 shadow-none transition-none';
 
 interface RequestModalProps {
   request: RequestFormType & { id?: string };
   title: 'Save request' | 'Update request';
-  className: string;
+  className?: string;
 }
 
 const RequestModal: React.FC<RequestModalProps> = ({ request, title, className }) => {
+  console.log('modal here');
   const dispatch = useDispatch<AppDispatch>();
   const currentUser = useSelector((state: RootState) => getCurrentUser(state));
   const existingRequest = useSelector((state: RootState) =>
     getRequestBySearch(state)(currentUser, request.search)
   );
+
   const isRequestSaved = Boolean(existingRequest);
   const [isSaved, setIsSaved] = useState(isRequestSaved);
 
@@ -76,49 +78,24 @@ const RequestModal: React.FC<RequestModalProps> = ({ request, title, className }
     },
   });
 
-  useEffect(() => {
-    form.reset({
-      search: request.search,
-      title: request.title || '',
-      maxResults: request.maxResults || 25,
-      order: request.order || 'relevance',
-    });
-  }, [request, form]);
-
-  const onSaveSubmit = (data: RequestFormType) => {
-    try {
-      dispatch(addRequest({ request: data, currentUser }));
-      setIsSaved(true);
-      toast.success('Request saved successfully!');
-    } catch {
-      toast.error('Failed to save request');
-    }
+  const handleSave = (data: RequestFormType) => {
+    dispatch(addRequest({ request: data, currentUser }));
+    setIsSaved(true);
+    toast.success('Request saved successfully!');
   };
 
-  const onEditSubmit = (data: RequestFormType) => {
-    try {
-      if (title === 'Update request' && request.id) {
-        dispatch(editRequest({ request: { id: request.id, ...data }, currentUser }));
-        toast.success('Request updated successfully!');
-      }
-    } catch (error) {
-      if (error instanceof Error && error.message === 'Request already exists') {
-        toast.error('Request already exists');
-      } else {
-        toast.error('Failed to update request');
-      }
+  const handleEdit = (data: RequestFormType) => {
+    if (title === 'Update request' && request.id) {
+      dispatch(editRequest({ request: { id: request.id, ...data }, currentUser }));
+      toast.success('Request updated successfully!');
     }
   };
 
   const handleRemoveFromFavorites = () => {
-    try {
-      if (existingRequest) {
-        dispatch(removeRequest({ id: existingRequest.id, currentUser }));
-        setIsSaved(false);
-        toast.success('Request removed from favorites!');
-      }
-    } catch {
-      toast.error('Failed to remove request');
+    if (existingRequest) {
+      dispatch(removeRequest({ id: existingRequest.id, currentUser }));
+      setIsSaved(false);
+      toast.success('Request removed from favorites!');
     }
   };
 
@@ -126,7 +103,6 @@ const RequestModal: React.FC<RequestModalProps> = ({ request, title, className }
     return (
       <Button
         type='button'
-        variant='ghost'
         className={cn(buttonClass, className)}
         onClick={handleRemoveFromFavorites}
       >
@@ -138,23 +114,23 @@ const RequestModal: React.FC<RequestModalProps> = ({ request, title, className }
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button type='button' variant='ghost' className={cn(buttonClass, className)}>
+        <Button className={cn(buttonClass, className)}>
           {title === 'Save request' ? (
             <Star className='group-hover:text-yellow-500 dark:group-hover:text-yellow-500 transition-colors' />
           ) : (
-            <Edit />
+            <Edit className='group-hover:text-yellow-500 dark:group-hover:text-yellow-500 transition-colors' />
           )}
         </Button>
       </SheetTrigger>
       <SheetContent side='right' className='w-full flex flex-col gap-3 max-w-xs p-3'>
-        <SheetHeader>
-          <SheetTitle className='items-center font-bold text-primary'>{title}</SheetTitle>
+        <SheetHeader className='items-center'>
+          <SheetTitle className='font-bold text-primary'>{title}</SheetTitle>
         </SheetHeader>
         <div className='flex items-center flex-col justify-center lg:p-8 gap-6'>
           <Form {...form}>
             <form
               className='grid gap-8 w-full max-w-sm min-w-0'
-              onSubmit={form.handleSubmit(title === 'Save request' ? onSaveSubmit : onEditSubmit)}
+              onSubmit={form.handleSubmit(title === 'Save request' ? handleSave : handleEdit)}
             >
               <FormField
                 control={form.control}

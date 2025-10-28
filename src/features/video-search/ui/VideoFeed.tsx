@@ -28,13 +28,13 @@ function VideoFeed() {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const navigate = useNavigate();
-  const [orientation, setOrientation] = useState('grid');
+
+  const [orientation, setOrientation] = useState(localStorage.getItem('ORIENTATION') || 'grid');
 
   const currentSearch = useSelector((state: RootState) => state.currentSearch.request);
   const [searchTerm, setSearchTerm] = useState(() => {
     return location.state?.request?.search || currentSearch?.search || '';
   });
-
   const [searchRequest, setSearchRequest] = useState(() => {
     return location.state?.request || currentSearch || null;
   });
@@ -113,6 +113,7 @@ function VideoFeed() {
           className='flex gap-2'
           onValueChange={(value) => {
             if (value) setOrientation(value);
+            localStorage.setItem('ORIENTATION', value);
           }}
         >
           <ToggleGroupItem
@@ -201,7 +202,11 @@ function VideoFeed() {
             ? Array.from({ length: 12 }).map((_, i) => (
                 <Skeleton
                   key={i}
-                  className='w-[280px] h-[280px] rounded-xl border py-6 shadow-sm'
+                  className={`rounded-xl border shadow-sm py-0 ${
+                    orientation === 'list'
+                      ? 'w-[80%] flex flex-row h-[120px]'
+                      : 'lgx1:w-[280px]  h-[265px]'
+                  }`}
                 />
               ))
             : null}
