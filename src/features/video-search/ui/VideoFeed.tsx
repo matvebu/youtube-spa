@@ -68,7 +68,7 @@ function VideoFeed() {
       className={`flex flex-col w-full items-center gap-4 px-8 h-full py-6 overflow-hidden  ${
         isLoading || isViewsLoading
           ? ''
-          : data?.videos !== undefined
+          : data?.videos
             ? 'justify-start h-full overflow-y-auto scrollbar-hidden'
             : 'justify-center'
       }`}
@@ -102,35 +102,34 @@ function VideoFeed() {
           title='Save request'
         />
       </div>
-      {data?.videos && (
-        <div className='flex justify-between w-full'>
-          <p>
-            Results for the query <span className='font-bold'>"{searchTerm}"</span>:{' '}
-            <span className='text-muted-foreground'>{data?.totalResults || 0}</span>
-          </p>
-          <ToggleGroup
-            type='single'
-            value={orientation}
-            className='flex gap-2'
-            onValueChange={(value) => {
-              if (value) setOrientation(value);
-            }}
+      <div className='flex justify-between w-full'>
+        <p>
+          Results for the query <span className='font-bold'>"{searchTerm}"</span>:{' '}
+          <span className='text-muted-foreground'>{data?.totalResults || 0}</span>
+        </p>
+        <ToggleGroup
+          type='single'
+          value={orientation}
+          className='flex gap-2'
+          onValueChange={(value) => {
+            if (value) setOrientation(value);
+          }}
+        >
+          <ToggleGroupItem
+            value='list'
+            className='cursor-pointer inline-flex items-center justify-center w-8 h-8 rounded text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
           >
-            <ToggleGroupItem
-              value='list'
-              className='cursor-pointer inline-flex items-center justify-center w-8 h-8 rounded text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-            >
-              <List />
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value='grid'
-              className='cursor-pointer inline-flex items-center justify-center w-8 h-8 rounded text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-            >
-              <LayoutGrid />
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-      )}
+            <List />
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value='grid'
+            className='cursor-pointer inline-flex items-center justify-center w-8 h-8 rounded text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+          >
+            <LayoutGrid />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
       <div
         className={`grid gap-6 w-full max-w-7xl ${
           orientation === 'list'
