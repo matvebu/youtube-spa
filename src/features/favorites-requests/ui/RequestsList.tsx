@@ -49,7 +49,7 @@ const RequestsList = () => {
               {request.title}
             </TableCell>
             <TableCell className='text-center shrink-0'>
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense>
                 <EditRequestModal
                   currentUser={currentUser}
                   request={request}
