@@ -9,7 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from '../../../../components/ui/form';
-import { Icons } from '../../../../shared/ui/icons';
+import { Icons } from '../../../../shared/utils/icons';
 import { useState } from 'react';
 import { Input } from '../../../../components/ui/input';
 import { Link, useNavigate } from 'react-router-dom';
@@ -20,12 +20,11 @@ import { toast } from 'sonner';
 import { useLoginMutation } from '../../api/authApi';
 import { type LoginSchemaType, LoginSchema } from '../../model/schema';
 
-import { upsertUser } from '../../model/store/userSlice';
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '../../../../app/providers/store/store';
+import { upsertUser } from '../../../../shared/store/userSlice';
+import { useAppDispatch } from '../../../../shared/hooks/storeHooks';
 
 const LoginForm = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [login, { isLoading: isFetching }] = useLoginMutation();
 

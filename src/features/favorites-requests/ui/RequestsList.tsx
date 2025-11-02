@@ -1,28 +1,28 @@
-import { useDispatch, useSelector } from 'react-redux';
 import {
   getCurrentUserRequests,
   removeRequest,
   type RequestType,
-} from '../model/store/requestsSlice';
+} from '../../../entities/request/model/requestsSlice';
 import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCaption, TableCell, TableRow } from '../../../components/ui/table';
 import { lazy, Suspense } from 'react';
-import type { AppDispatch, RootState } from '../../../app/providers/store/store';
-import { getCurrentUser } from '../../auth/model/store/userSlice';
+import { useAppDispatch, useAppSelector } from '../../../shared/hooks/storeHooks';
+import { getCurrentUser } from '../../../shared/store/userSlice';
 import { setCurrentSearch } from '../../video-search/model/store/currentSearchSlice';
 import { X } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { toast } from 'sonner';
 
-const RequestModal = lazy(() => import('./RequestModal'));
+const EditRequestModal = lazy(() => import('../../../entities/request/model/ui/Modal'));
 
 const RequestsList = () => {
-  const currentUser = useSelector((state: RootState) => getCurrentUser(state));
-  const requests = useSelector((state: RootState) => getCurrentUserRequests(state)(currentUser));
+  const currentUser = useAppSelector((state) => getCurrentUser(state));
+
+  const requests = useAppSelector((state) => getCurrentUserRequests(state, currentUser));
 
   const navigate = useNavigate();
 
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
   const clickRequestHandler = (request: RequestType) => {
     dispatch(setCurrentSearch(request));
@@ -30,7 +30,6 @@ const RequestsList = () => {
   };
 
   const handleRemoveFromFavorites = (request: RequestType) => {
-    console.log('here');
     dispatch(removeRequest({ id: request.id, currentUser }));
     toast.success('Request removed from favorites!');
   };
@@ -51,12 +50,17 @@ const RequestsList = () => {
             </TableCell>
             <TableCell className='text-center shrink-0'>
               <Suspense fallback={<div>Loading...</div>}>
-                <RequestModal request={request} title='Update request' />
+                <EditRequestModal
+                  currentUser={currentUser}
+                  request={request}
+                  title='Update request'
+                  requestFromFavorites={request}
+                />
                 <Button
                   onClick={() => handleRemoveFromFavorites(request)}
                   className='group cursor-pointer rounded-none border-none bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent focus-visible:outline-none focus-visible:ring-0 shadow-none transition-none'
                 >
-                  <X className='group-hover:text-yellow-500 dark:group-hover:text-yellow-500 transition-colors' />
+                  <X className='group-hover:text-yellow-500 dark:group-hover:text-yellow-500  text-black dark:text-white transition-colors' />
                 </Button>
               </Suspense>
             </TableCell>

@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy } from 'react';
-import PrivateRoute from '../../../shared/api/routing/PrivateRoute';
-import MainLayout from '../../../shared/ui/MainLayout';
+import PrivateRoute from '../../../shared/components/PrivateRoute';
+import MainLayout from '../../../shared/components/MainLayout';
 
 const LoginPage = lazy(() => import('../../../pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('../../../pages/auth/RegisterPage'));

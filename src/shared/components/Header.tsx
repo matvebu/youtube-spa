@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Logo from '../../assets//logo.png';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { useEffect, useState } from 'react';
-import { useMediaQuery } from '../utils/useMediaQuery';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Sheet, SheetContent } from '../../components/ui/sheet';
 
 const Header = () => {
@@ -68,7 +68,7 @@ const Header = () => {
           </div>
           <Menu onClick={openHandler} />
           <Sheet open={open} onOpenChange={setOpen}>
-            <SheetContent side='right' className='w-full flex flex-col gap-3 max-w-xs'>
+            <SheetContent side='right' className='w-[50%] flex flex-col gap-3 max-w-xs'>
               <div className='p-4 pb-0 flex justify-center'>
                 <Tabs value={value} onValueChange={handleTabs}>
                   <TabsList className='bg-transparent flex flex-col h-full'>

@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { RequestFormType } from '../../../favorites-requests/model/schema';
+import type { RequestFormType } from '../../../../entities/request/model/schema';
 
 type CurrentRequestType = RequestFormType & { id?: string };
 

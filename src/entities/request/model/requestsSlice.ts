@@ -1,5 +1,5 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { RequestFormType } from '../schema';
+import { createSlice, createSelector, type PayloadAction } from '@reduxjs/toolkit';
+import type { RequestFormType } from './schema';
 import { v4 as uuidv4 } from 'uuid';
 
 export type RequestType = RequestFormType & { id: string };
@@ -35,13 +35,6 @@ const requestsSlice = createSlice({
   name: 'requests',
   initialState: getInitialState(),
   selectors: {
-    getCurrentUserRequests:
-      (requests) =>
-      (currentUser: string): RequestType[] => {
-        if (!currentUser) return [];
-        return Object.values(requests[currentUser] || {}) as RequestType[];
-      },
-
     getRequestBySearch:
       (requests) =>
       (currentUser: string, searchTerm: string): RequestType | null => {
@@ -91,5 +84,17 @@ const requestsSlice = createSlice({
 
 export const { addRequest, editRequest, removeRequest } = requestsSlice.actions;
 export const requestsReducer = requestsSlice.reducer;
-export const { getCurrentUserRequests, getRequestBySearch, getRequestById } =
-  requestsSlice.selectors;
+export const { getRequestBySearch, getRequestById } = requestsSlice.selectors;
+
+export const getCurrentUserRequests = createSelector(
+  [
+    (state: { requests: RequestsState }) => state.requests,
+    (_state: { requests: RequestsState }, currentUser: string) => currentUser,
+  ],
+  (requests, currentUser) => {
+    if (!currentUser) return [];
+    const userRequests = requests[currentUser];
+    if (!userRequests) return [];
+    return Object.values(userRequests) as RequestType[];
+  }
+);

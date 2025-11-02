@@ -1,11 +1,11 @@
-import { authApi } from '../../../features/auth/api/authApi';
-import { videoApi } from '../../../features/video-search/api/videoApi';
-import { requestsReducer } from '../../../features/favorites-requests/model/store/requestsSlice';
+import { authApi } from '../../features/auth/api/authApi';
+import { videoApi } from '../../features/video-search/api/videoApi';
+import { requestsReducer } from '../../entities/request/model/requestsSlice';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { userReducer } from '../../../features/auth/model/store/userSlice';
-import { currentSearchReducer } from '../../../features/video-search/model/store/currentSearchSlice';
+import { userReducer } from './userSlice';
+import { currentSearchReducer } from '../../features/video-search/model/store/currentSearchSlice';
 
 const persistConfig = {
   key: 'root',

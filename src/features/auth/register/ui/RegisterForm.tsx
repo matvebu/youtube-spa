@@ -9,7 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from '../../../../components/ui/form';
-import { Icons } from '../../../../shared/ui/icons';
+import { Icons } from '../../../../shared/utils/icons';
 import { useState } from 'react';
 import { Input } from '../../../../components/ui/input';
 import { Link, useNavigate } from 'react-router-dom';

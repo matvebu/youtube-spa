@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { useLazyGetViewsCountQuery, useSearchQuery } from '../api/videoApi';
@@ -16,22 +15,23 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { viewsFormatHelper } from '../../../shared/utils/viewsFormatHelper';
 import { List, LayoutGrid, Search } from 'lucide-react';
-import { SearchInputSchema } from '../model/schema';
+import { SearchInputSchema } from '../../../entities/video/model/schema';
 import { ToggleGroup, ToggleGroupItem } from '../../../components/ui/toggle-group';
-import RequestModal from '../../favorites-requests/ui/RequestModal';
-import type { AppDispatch, RootState } from '../../../app/providers/store/store';
-import { useSelector } from 'react-redux';
+import SaveRequestModal from '../../../entities/request/model/ui/Modal';
+import { useAppDispatch, useAppSelector } from '../../../shared/hooks/storeHooks';
 import { setCurrentSearch } from '../model/store/currentSearchSlice';
 import { skipToken } from '@reduxjs/toolkit/query';
+import { getRequestBySearch } from '../../../entities/request/model/requestsSlice';
+import { getCurrentUser } from '../../../shared/store/userSlice';
 
 function VideoFeed() {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const location = useLocation();
   const navigate = useNavigate();
 
   const [orientation, setOrientation] = useState(localStorage.getItem('ORIENTATION') || 'grid');
 
-  const currentSearch = useSelector((state: RootState) => state.currentSearch.request);
+  const currentSearch = useAppSelector((state) => state.currentSearch.request);
   const [searchTerm, setSearchTerm] = useState(() => {
     return location.state?.request?.search || currentSearch?.search || '';
   });
@@ -50,14 +50,36 @@ function VideoFeed() {
     }
   }, [data, triggerViewsCount]);
 
+  const currentUser = useAppSelector((state) => getCurrentUser(state));
+  const requestFromFavorites = useAppSelector((state) =>
+    getRequestBySearch(state)(currentUser, searchTerm)
+  );
+
   const handleSearch = () => {
     const result = SearchInputSchema.safeParse({ search: searchTerm });
     if (!result.success) {
       toast.error('Invalid search query');
       return;
     }
-    dispatch(setCurrentSearch(result.data));
-    setSearchRequest({ search: result.data.search });
+
+    if (requestFromFavorites) {
+      const fullRequest = {
+        search: requestFromFavorites.search,
+        maxResults: requestFromFavorites.maxResults || 25,
+        order: requestFromFavorites.order || 'relevance',
+        title: requestFromFavorites.title || '',
+      };
+      dispatch(setCurrentSearch(fullRequest));
+      setSearchRequest(fullRequest);
+    } else {
+      const defaultRequest = {
+        search: result.data.search,
+        maxResults: 25,
+        order: 'relevance' as const,
+      };
+      dispatch(setCurrentSearch(defaultRequest));
+      setSearchRequest(defaultRequest);
+    }
   };
 
   const cardClickHandler = (videoId: string) => {
@@ -96,10 +118,12 @@ function VideoFeed() {
             <Search />
           </Button>
         </form>
-        <RequestModal
+        <SaveRequestModal
           className='absolute right-10.5'
+          currentUser={currentUser}
           request={{ search: searchTerm, title: '' }}
           title='Save request'
+          requestFromFavorites={requestFromFavorites ?? undefined}
         />
       </div>
       <div className='flex justify-between w-full'>

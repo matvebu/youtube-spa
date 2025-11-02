@@ -1,5 +1,5 @@
-import { store } from '../../app/providers/store/store';
-import { removeUser } from '../../features/auth/model/store/userSlice';
+import { store } from '../store/store';
+import { removeUser } from '../../shared/store/userSlice';
 import { clearCurrentSearch } from '../../features/video-search/model/store/currentSearchSlice';
 
 export const logout = () => {

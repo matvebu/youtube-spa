@@ -1,4 +1,4 @@
-import AuthLayout from '../../shared/ui/AuthLayout';
+import AuthLayout from '../../shared/components/AuthLayout';
 import LoginForm from '../../features/auth/login/ui/LoginForm';
 
 const LoginPage = () => {

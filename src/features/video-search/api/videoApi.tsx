@@ -1,8 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { createEntityAdapter, type EntityState } from '@reduxjs/toolkit';
 import { createVideoBaseQuery } from './videoBaseQuery';
-import type { SearchVideoResponse, ViewsCountResponse, Video } from '../model/types';
-import type { SearchRequestType } from '../model/schema';
+import type { SearchVideoResponse, ViewsCountResponse } from '../../../entities/video/model/types';
+import type { Video } from '../../../entities/video/model/types';
+import type { SearchRequestType } from '../../../entities/video/model/schema';
 
 const searchAdapter = createEntityAdapter({
   selectId: (entity: Video) => entity.id.videoId,

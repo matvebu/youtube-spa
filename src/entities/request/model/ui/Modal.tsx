@@ -6,8 +6,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '../../../components/ui/sheet';
-import { Button } from '../../../components/ui/button';
+} from '../../../../components/ui/sheet';
+import { Button } from '../../../../components/ui/button';
 import {
   Form,
   FormControl,
@@ -15,13 +15,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../../../components/ui/form';
+} from '../../../../components/ui/form';
 import { toast } from 'sonner';
 
 import { useForm } from 'react-hook-form';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input } from '../../../components/ui/input';
+import { Input } from '../../../../components/ui/input';
 import { Star, Edit } from 'lucide-react';
 import {
   Select,
@@ -31,42 +31,38 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '../../../components/ui/select';
-import { RequestFormSchema, type RequestFormType } from '../model/schema';
+} from '../../../../components/ui/select';
+import { RequestFormSchema, type RequestFormType } from '../../../../entities/request/model/schema';
 import {
   removeRequest,
   addRequest,
   editRequest,
-  getRequestBySearch,
-} from '../model/store/requestsSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '../../../app/providers/store/store';
-import { getCurrentUser } from '../../auth/model/store/userSlice';
-import { cn } from '../../../shared/lib/utils/cn';
+  type RequestType,
+} from '../../../../entities/request/model/requestsSlice';
+import { useAppDispatch } from '../../../../shared/hooks/storeHooks';
+import { cn } from '../../../../shared/utils/cn';
 
 const buttonClass =
   'group cursor-pointer rounded-none border-none bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent focus-visible:outline-none focus-visible:ring-0 shadow-none transition-none';
 
-interface RequestModalProps {
+interface ModalProps {
   request: RequestFormType & { id?: string };
   title: 'Save request' | 'Update request';
   className?: string;
+  currentUser: string;
+  requestFromFavorites?: RequestType;
 }
 
-const RequestModal: React.FC<RequestModalProps> = ({ request, title, className }) => {
-  console.log('modal here');
-  const dispatch = useDispatch<AppDispatch>();
-  const currentUser = useSelector((state: RootState) => getCurrentUser(state));
-  const existingRequest = useSelector((state: RootState) =>
-    getRequestBySearch(state)(currentUser, request.search)
-  );
+const Modal: React.FC<ModalProps> = ({
+  request,
+  title,
+  className,
+  currentUser,
+  requestFromFavorites,
+}) => {
+  const dispatch = useAppDispatch();
 
-  const isRequestSaved = Boolean(existingRequest);
-  const [isSaved, setIsSaved] = useState(isRequestSaved);
-
-  useEffect(() => {
-    setIsSaved(isRequestSaved);
-  }, [isRequestSaved]);
+  const isRequestSaved = Boolean(requestFromFavorites);
 
   const form = useForm<RequestFormType>({
     resolver: zodResolver(RequestFormSchema),
@@ -78,9 +74,18 @@ const RequestModal: React.FC<RequestModalProps> = ({ request, title, className }
     },
   });
 
+  useEffect(() => {
+    form.reset({
+      search: request.search,
+      title: request.title || '',
+      maxResults: request.maxResults || 25,
+      order: request.order || 'relevance',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [request]);
+
   const handleSave = (data: RequestFormType) => {
     dispatch(addRequest({ request: data, currentUser }));
-    setIsSaved(true);
     toast.success('Request saved successfully!');
   };
 
@@ -92,14 +97,13 @@ const RequestModal: React.FC<RequestModalProps> = ({ request, title, className }
   };
 
   const handleRemoveFromFavorites = () => {
-    if (existingRequest) {
-      dispatch(removeRequest({ id: existingRequest.id, currentUser }));
-      setIsSaved(false);
+    if (requestFromFavorites) {
+      dispatch(removeRequest({ id: requestFromFavorites.id, currentUser }));
       toast.success('Request removed from favorites!');
     }
   };
 
-  if (title === 'Save request' && isSaved) {
+  if (title === 'Save request' && isRequestSaved) {
     return (
       <Button
         type='button'
@@ -116,9 +120,9 @@ const RequestModal: React.FC<RequestModalProps> = ({ request, title, className }
       <SheetTrigger asChild>
         <Button className={cn(buttonClass, className)}>
           {title === 'Save request' ? (
-            <Star className='group-hover:text-yellow-500 dark:group-hover:text-yellow-500 transition-colors' />
+            <Star className='group-hover:text-yellow-500 dark:group-hover:text-yellow-500  text-black dark:text-white transition-colors' />
           ) : (
-            <Edit className='group-hover:text-yellow-500 dark:group-hover:text-yellow-500 transition-colors' />
+            <Edit className='group-hover:text-yellow-500 dark:group-hover:text-yellow-500  text-black dark:text-white transition-colors' />
           )}
         </Button>
       </SheetTrigger>
@@ -237,4 +241,4 @@ const RequestModal: React.FC<RequestModalProps> = ({ request, title, className }
   );
 };
 
-export default RequestModal;
+export default Modal;
