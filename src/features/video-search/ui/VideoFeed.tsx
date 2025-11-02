@@ -100,7 +100,7 @@ function VideoFeed() {
       flex flex-col w-full
       ${
         !data?.videos || !Object.keys(data.videos.entities).length
-          ? 'max-w-xl mx-auto'
+          ? 'max-w-3xl mx-auto'
           : 'max-w-7xl'
       }
     `}
