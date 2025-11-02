@@ -89,10 +89,10 @@ function VideoFeed() {
     <div
       className={`flex flex-col w-full items-center gap-4 px-8 h-full py-6 overflow-hidden  ${
         isLoading || isViewsLoading
-          ? ''
+          ? 'px-0'
           : data?.videos
             ? 'justify-start h-full overflow-y-auto scrollbar-hidden'
-            : 'justify-center'
+            : 'justify-center px-30'
       }`}
     >
       <div className='relative flex w-full items-center'>
