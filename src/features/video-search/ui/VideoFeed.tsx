@@ -87,90 +87,76 @@ function VideoFeed() {
   };
   return (
     <div
-      className={`flex flex-col items-center gap-4 h-full py-6 overflow-hidden px-8
-      ${
-        isLoading || isViewsLoading || !(data?.videos && Object.keys(data.videos.entities).length)
-          ? 'justify-center'
-          : 'justify-start h-full overflow-y-auto scrollbar-hidden'
-      }
-    `}
+      className={`flex flex-col w-full items-center gap-4 px-8 h-full py-6 overflow-hidden  ${
+        isLoading || isViewsLoading
+          ? ''
+          : data?.videos
+            ? 'justify-start h-full overflow-y-auto scrollbar-hidden'
+            : 'justify-center'
+      }`}
     >
-      <div
-        className={`
-      flex flex-col w-full
-      ${
-        !data?.videos || !Object.keys(data.videos.entities).length
-          ? 'max-w-3xl mx-auto'
-          : 'max-w-7xl'
-      }
-    `}
-      >
-        <div className='relative flex w-full items-center'>
-          <form
-            className='flex flex-1 group focus-within:ring-[3px] focus-within:ring-primary focus-within:border-primary rounded-4xl border transition-all '
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSearch();
-            }}
-          >
-            <Input
-              className='focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none focus-visible:border-transparent placeholder:text-base placeholder:leading-4 rounded-r-none placeholder:text-[#30384C]/40 dark:placeholder:text-[#d0d8e8]/60 w-full pl-5 rounded-l-4xl bg-input/30 dark:bg-input/30 border-r-0'
-              type='text'
-              placeholder='search'
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Button
-              type='submit'
-              variant='outline'
-              className='rounded-r-4xl rounded-l-none hover:bg-primary/30 dark:hover:bg-primary/30 active:bg-primary  dark:active:bg-primary active:border-primary active:ring-[3px] active:ring-primary'
-            >
-              <Search />
-            </Button>
-          </form>
-          <SaveRequestModal
-            className='absolute right-10.5'
-            currentUser={currentUser}
-            request={{ search: searchTerm, title: '' }}
-            title='Save request'
-            requestFromFavorites={requestFromFavorites ?? undefined}
+      <div className='relative flex w-full items-center'>
+        <form
+          className='flex flex-1 group focus-within:ring-[3px] focus-within:ring-primary focus-within:border-primary rounded-4xl border transition-all '
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch();
+          }}
+        >
+          <Input
+            className='focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none focus-visible:border-transparent placeholder:text-base placeholder:leading-4 rounded-r-none placeholder:text-[#30384C]/40 dark:placeholder:text-[#d0d8e8]/60 w-full pl-5 rounded-l-4xl bg-input/30 dark:bg-input/30 border-r-0'
+            type='text'
+            placeholder='search'
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-        </div>
-        <div className='flex justify-between w-full mt-4'>
-          <p>
-            Results for the query <span className='font-bold'>"{searchTerm}"</span>:{' '}
-            <span className='text-muted-foreground'>{data?.totalResults || 0}</span>
-          </p>
-          <ToggleGroup
-            type='single'
-            value={orientation}
-            className='flex gap-2'
-            onValueChange={(value) => {
-              if (value) setOrientation(value);
-              localStorage.setItem('ORIENTATION', value);
-            }}
+          <Button
+            type='submit'
+            variant='outline'
+            className='rounded-r-4xl rounded-l-none hover:bg-primary/30 dark:hover:bg-primary/30 active:bg-primary  dark:active:bg-primary active:border-primary active:ring-[3px] active:ring-primary'
           >
-            <ToggleGroupItem
-              value='list'
-              className='cursor-pointer inline-flex items-center justify-center w-8 h-8 rounded text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-            >
-              <List />
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value='grid'
-              className='cursor-pointer inline-flex items-center justify-center w-8 h-8 rounded text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
-            >
-              <LayoutGrid />
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
+            <Search />
+          </Button>
+        </form>
+        <SaveRequestModal
+          className='absolute right-10.5'
+          currentUser={currentUser}
+          request={{ search: searchTerm, title: '' }}
+          title='Save request'
+          requestFromFavorites={requestFromFavorites ?? undefined}
+        />
       </div>
+      <div className='flex justify-between w-full'>
+        <p>
+          Results for the query <span className='font-bold'>"{searchTerm}"</span>:{' '}
+          <span className='text-muted-foreground'>{data?.totalResults || 0}</span>
+        </p>
+        <ToggleGroup
+          type='single'
+          value={orientation}
+          className='flex gap-2'
+          onValueChange={(value) => {
+            if (value) setOrientation(value);
+            localStorage.setItem('ORIENTATION', value);
+          }}
+        >
+          <ToggleGroupItem
+            value='list'
+            className='cursor-pointer inline-flex items-center justify-center w-8 h-8 rounded text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+          >
+            <List />
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value='grid'
+            className='cursor-pointer inline-flex items-center justify-center w-8 h-8 rounded text-muted-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+          >
+            <LayoutGrid />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
       <div
-        className={`grid gap-6 w-full ${
-          !data?.videos || !Object.keys(data.videos.entities).length
-            ? 'max-w-md mx-auto'
-            : 'max-w-7xl'
-        } ${
+        className={`grid gap-6 w-full max-w-7xl ${
           orientation === 'list'
             ? 'grid-cols-1 place-items-center'
             : 'grid-cols-1 sm:grid-cols-2 smx1:grid-cols-3 lgx1:grid-cols-4'
