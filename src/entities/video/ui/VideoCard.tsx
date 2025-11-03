@@ -22,7 +22,9 @@ const VideoCard: React.FC<CardProps> = ({ video, orientation, cardClickHandler, 
       key={video.id.videoId}
       onClick={() => cardClickHandler(video.id.videoId)}
       className={`cursor-pointer py-0 ${
-        orientation === 'list' ? 'w-[80%] flex flex-row h-[120px]' : 'lgx1:w-[280px]'
+        orientation === 'list'
+          ? 'w-[100%] mobile:w-[80%] flex flex-row h-[120px]'
+          : 'lgx1:w-[280px]'
       }`}
     >
       <div
@@ -30,7 +32,11 @@ const VideoCard: React.FC<CardProps> = ({ video, orientation, cardClickHandler, 
           orientation === 'list' ? 'flex flex-row w-full' : ''
         }`}
       >
-        <CardContent className={orientation === 'list' ? 'px-0 w-[210px] flex-shrink-0' : 'px-0'}>
+        <CardContent
+          className={
+            orientation === 'list' ? 'px-0 w-[210px] flex-shrink-0 sm:flex-shrink-1' : 'px-0'
+          }
+        >
           <AspectRatio ratio={16 / 9}>
             <picture>
               <source media='(min-width: 650px)' srcSet={video.snippet.thumbnails.medium.url} />

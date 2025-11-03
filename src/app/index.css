@@ -6,6 +6,7 @@
 @theme {
   --breakpoint-smx1: 60rem;
   --breakpoint-lgx1: 78rem;
+  --breakpoint-mobile: 32rem;
 }
 
 @theme inline {
