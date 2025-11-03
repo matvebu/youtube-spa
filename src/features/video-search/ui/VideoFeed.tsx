@@ -92,7 +92,7 @@ function VideoFeed() {
           ? 'px-0'
           : data?.videos
             ? 'justify-start h-full overflow-y-auto scrollbar-hidden'
-            : 'justify-center px-50'
+            : 'justify-center md:px-50 px-8'
       }`}
     >
       <div className='relative flex w-full items-center'>
