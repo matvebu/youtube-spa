@@ -34,7 +34,7 @@ const RequestsList = () => {
     toast.success('Request removed from favorites!');
   };
   return (
-    <Table className='w-full flex flex-col max-w-3xl mx-auto pt-8'>
+    <Table className='w-full flex flex-col max-w-3xl mx-auto pt-8 smx1:px-0 px-4'>
       <TableCaption className='sr-only'>Favorites requests</TableCaption>
       <TableBody className='w-full flex flex-col space-y-1'>
         {requests.map((request) => (
