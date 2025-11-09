@@ -2,18 +2,9 @@ import { useEffect, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { useLazyGetViewsCountQuery, useSearchQuery } from '../api/videoApi';
-import {
-  Card,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from '../../../components/ui/card';
-import { AspectRatio } from '../../../components/ui/aspect-ratio';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { viewsFormatHelper } from '../../../shared/utils/viewsFormatHelper';
 import { List, LayoutGrid, Search } from 'lucide-react';
 import { SearchInputSchema } from '../../../entities/video/model/schema';
 import { ToggleGroup, ToggleGroupItem } from '../../../components/ui/toggle-group';
@@ -23,13 +14,17 @@ import { setCurrentSearch } from '../model/store/currentSearchSlice';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { getRequestBySearch } from '../../../entities/request/model/requestsSlice';
 import { getCurrentUser } from '../../../shared/store/userSlice';
+import VideoCard from '../../../entities/video/ui/VideoCard';
 
 function VideoFeed() {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [orientation, setOrientation] = useState(localStorage.getItem('ORIENTATION') || 'grid');
+  const [orientation, setOrientation] = useState<'list' | 'grid'>(() => {
+    const saved = localStorage.getItem('ORIENTATION');
+    return saved === 'list' || saved === 'grid' ? saved : 'grid';
+  });
 
   const currentSearch = useAppSelector((state) => state.currentSearch.request);
   const [searchTerm, setSearchTerm] = useState(() => {
@@ -136,7 +131,7 @@ function VideoFeed() {
           value={orientation}
           className='flex gap-2'
           onValueChange={(value) => {
-            if (value) setOrientation(value);
+            if (value === 'list' || value === 'grid') setOrientation(value);
             localStorage.setItem('ORIENTATION', value);
           }}
         >
@@ -165,61 +160,12 @@ function VideoFeed() {
         {data && viewsData
           ? Object.values(data.videos.entities).map((el) => {
               return (
-                <Card
-                  key={el.id.videoId}
-                  onClick={() => cardClickHandler(el.id.videoId)}
-                  className={`cursor-pointer py-0 ${
-                    orientation === 'list' ? 'w-[80%] flex flex-row h-[120px]' : 'lgx1:w-[280px]'
-                  }`}
-                >
-                  <div
-                    className={`block relative h-full after:content-[""] after:absolute after:inset-0 after:rounded-[14px] after:bg-transparent after:pointer-events-none after:transition-colors hover:after:bg-[rgba(62,170,102,0.2)] ${
-                      orientation === 'list' ? 'flex flex-row w-full' : ''
-                    }`}
-                  >
-                    <CardContent
-                      className={orientation === 'list' ? 'px-0 w-[210px] flex-shrink-0' : 'px-0'}
-                    >
-                      <AspectRatio ratio={16 / 9}>
-                        <picture>
-                          <source
-                            media='(min-width: 650px)'
-                            srcSet={el.snippet.thumbnails.medium.url}
-                          />
-                          <img
-                            src={el.snippet.thumbnails.high.url}
-                            alt={el.snippet.title}
-                            className={`object-cover w-full h-full ${
-                              orientation === 'list' ? 'rounded-l-[14px]' : 'rounded-t-[14px]'
-                            }`}
-                            onError={(e) => {
-                              e.currentTarget.src = '/assets/fallback.jpg';
-                            }}
-                          />
-                        </picture>
-                      </AspectRatio>
-                    </CardContent>
-                    <CardFooter
-                      className={`items-start px-3 pt-3 ${
-                        orientation === 'list' ? 'flex-1 flex-col justify-center' : 'flex-col'
-                      }`}
-                    >
-                      <CardTitle className='line-clamp-2 overflow-hidden text-ellipsis text-left mb-2'>
-                        {el.snippet.title}
-                      </CardTitle>
-                      <CardDescription>{el.snippet.channelTitle}</CardDescription>
-                      {viewsData &&
-                        viewsData.items.map((view) => {
-                          if (view.id === el.id.videoId)
-                            return (
-                              <CardDescription key={view.id} className='mb-2'>
-                                {viewsFormatHelper(view.statistics.viewCount)} views
-                              </CardDescription>
-                            );
-                        })}
-                    </CardFooter>
-                  </div>
-                </Card>
+                <VideoCard
+                  cardClickHandler={cardClickHandler}
+                  video={el}
+                  orientation={orientation}
+                  viewsData={viewsData}
+                />
               );
             })
           : isLoading || isViewsLoading
