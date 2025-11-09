@@ -6,8 +6,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '../../../../components/ui/sheet';
-import { Button } from '../../../../components/ui/button';
+} from '../../../components/ui/sheet';
+import { Button } from '../../../components/ui/button';
 import {
   Form,
   FormControl,
@@ -15,13 +15,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../../../../components/ui/form';
+} from '../../../components/ui/form';
 import { toast } from 'sonner';
 
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input } from '../../../../components/ui/input';
+import { Input } from '../../../components/ui/input';
 import { Star, Edit } from 'lucide-react';
 import {
   Select,
@@ -31,16 +31,11 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '../../../../components/ui/select';
-import { RequestFormSchema, type RequestFormType } from '../../../../entities/request/model/schema';
-import {
-  removeRequest,
-  addRequest,
-  editRequest,
-  type RequestType,
-} from '../../../../entities/request/model/requestsSlice';
-import { useAppDispatch } from '../../../../shared/hooks/storeHooks';
-import { cn } from '../../../../shared/utils/cn';
+} from '../../../components/ui/select';
+import { RequestFormSchema, type RequestFormType } from '../model/schema';
+import { removeRequest, addRequest, editRequest, type RequestType } from '../model/requestsSlice';
+import { useAppDispatch } from '../../../shared/hooks/storeHooks';
+import { cn } from '../../../shared/utils/cn';
 
 const buttonClass =
   'group cursor-pointer rounded-none border-none bg-transparent hover:bg-transparent focus:bg-transparent active:bg-transparent focus-visible:outline-none focus-visible:ring-0 shadow-none transition-none';

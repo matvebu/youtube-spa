@@ -13,7 +13,7 @@ import { X } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { toast } from 'sonner';
 
-const EditRequestModal = lazy(() => import('../../../entities/request/model/ui/Modal'));
+const EditRequestModal = lazy(() => import('../../../entities/request/ui/Modal'));
 
 const RequestsList = () => {
   const currentUser = useAppSelector((state) => getCurrentUser(state));

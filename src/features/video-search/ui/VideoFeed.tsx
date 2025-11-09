@@ -17,7 +17,7 @@ import { viewsFormatHelper } from '../../../shared/utils/viewsFormatHelper';
 import { List, LayoutGrid, Search } from 'lucide-react';
 import { SearchInputSchema } from '../../../entities/video/model/schema';
 import { ToggleGroup, ToggleGroupItem } from '../../../components/ui/toggle-group';
-import SaveRequestModal from '../../../entities/request/model/ui/Modal';
+import SaveRequestModal from '../../../entities/request/ui/Modal';
 import { useAppDispatch, useAppSelector } from '../../../shared/hooks/storeHooks';
 import { setCurrentSearch } from '../model/store/currentSearchSlice';
 import { skipToken } from '@reduxjs/toolkit/query';
